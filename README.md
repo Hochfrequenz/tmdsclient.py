@@ -33,6 +33,10 @@ client = TmdsClient(tmds_config)
 netzvertrage = await client.get_netzvertraege_for_melo("DE1234567890123456789012345678901")
 ```
 
+Even though we did not fully replicate the TMDS data model (mainly [BO4E.net](https://github.com/Hochfrequenz/BO4E-dotnet/) + some wrapper classes),
+we tried to make the client as flexible as possible.
+You can use any unmapped field returned by TMDS by using the [`model_extra` property of pydantic](https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel.model_extra).
+
 ## Development
 For development of this library, follow the instructions in our [Python Template Repository](https://github.com/Hochfrequenz/python_template_repository).
 tl;dr: `tox -e dev` will set up a development environment for you.
