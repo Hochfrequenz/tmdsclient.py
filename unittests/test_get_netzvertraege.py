@@ -24,3 +24,5 @@ class TestGetNetzvertraege:
         assert isinstance(actual, list)
         assert all(isinstance(x, Netzvertrag) for x in actual)
         assert actual[0].bo_model.vertragsbeginn is not None
+        assert any(actual[0].model_extra), "Unmapped properties should be stored in model_extra (Netzvertrag)"
+        assert any(actual[0].bo_model.model_extra), "Unmapped properties should be stored in model_extra (Bo4eVertrag)"
