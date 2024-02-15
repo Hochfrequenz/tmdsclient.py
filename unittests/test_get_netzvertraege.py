@@ -1,9 +1,10 @@
 import json
+import uuid
 from pathlib import Path
 
 from aioresponses import aioresponses
 
-from tmdsclient.models.netzvertrag import Netzvertrag
+from tmdsclient.models.netzvertrag import Bo4eVertrag, Netzvertrag
 
 
 class TestGetNetzvertraege:
@@ -26,3 +27,13 @@ class TestGetNetzvertraege:
         assert actual[0].bo_model.vertragsbeginn is not None
         assert any(actual[0].model_extra), "Unmapped properties should be stored in model_extra (Netzvertrag)"
         assert any(actual[0].bo_model.model_extra), "Unmapped properties should be stored in model_extra (Bo4eVertrag)"
+
+    def test_netzvertrag_can_be_instantiated_using_field_names(self):
+        dummy_bo4e_vertrag = Bo4eVertrag.construct()
+        nv = Netzvertrag(bo_model=dummy_bo4e_vertrag, id=uuid.uuid4())
+        assert nv.bo_model is not None
+
+    def test_netzvertrag_can_be_instantiated_using_alias(self):
+        dummy_bo4e_vertrag = Bo4eVertrag.construct()
+        nv = Netzvertrag(boModel=dummy_bo4e_vertrag, id=uuid.uuid4())
+        assert nv.bo_model is not None
