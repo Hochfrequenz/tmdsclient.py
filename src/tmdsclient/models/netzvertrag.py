@@ -3,8 +3,10 @@ a Netzvertrag is a contract between a supplier and a grid operator
 """
 
 from enum import StrEnum
+from typing import Callable
 from uuid import UUID
 
+import jsonpatch  # type:ignore[import]
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, RootModel
 
 
