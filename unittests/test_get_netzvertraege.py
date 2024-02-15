@@ -23,4 +23,4 @@ class TestGetNetzvertraege:
             actual = await client.get_netzvertraege_for_melo(melo_id)
         assert isinstance(actual, list)
         assert all(isinstance(x, Netzvertrag) for x in actual)
-        assert actual[0].boModel.vertragsbeginn is not None
+        assert actual[0].bo_model.vertragsbeginn is not None
