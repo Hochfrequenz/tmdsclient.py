@@ -13,7 +13,9 @@ Entity = TypeVar("Entity", bound=BaseModel)
 
 def build_json_patch_document(current_state: Entity, changes: list[Callable[[Entity], None]]) -> jsonpatch.JsonPatch:
     """
-    creates a json patch (RFC6902) that contains all the changes applied to current_state
+    creates a json patch (RFC6902) that contains all the changes applied to current_state.
+    Note that the result is not stable, i.e. the order of operations in the patch may vary.
+    See https://github.com/stefankoegl/python-json-patch/issues/151
     """
     current_state_dict = json.loads(current_state.model_dump_json(by_alias=True))
     # we create a deep copy of the original object

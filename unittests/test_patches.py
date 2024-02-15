@@ -2,12 +2,10 @@
 tests the bare JSON patch logic (no requests)
 """
 
-import asyncio
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Callable
+from typing import Callable
 
-import jsonpatch
 import pytest
 from jsonpatch import JsonPatch  # type:ignore[import]
 
