@@ -3,12 +3,13 @@
 import asyncio
 import logging
 import uuid
-from typing import Optional
+from typing import Callable, Optional
 
 from aiohttp import BasicAuth, ClientSession, ClientTimeout
 
 from tmdsclient.client.config import TmdsConfig
 from tmdsclient.models.netzvertrag import Netzvertrag, _ListOfNetzvertraege
+from tmdsclient.models.patches import build_json_patch_document
 
 _logger = logging.getLogger(__name__)
 
@@ -68,3 +69,45 @@ class TmdsClient:
             response_json = await response.json()
             _list_of_netzvertraege = _ListOfNetzvertraege.model_validate(response_json)
         return _list_of_netzvertraege.root
+
+    async def get_netzvertrag_by_id(self, nv_id: uuid.UUID) -> Netzvertrag | None:
+        """
+        provide a UUID, get the matching netzvertrag in return (or None, if 404)
+        """
+        session = await self._get_session()
+        request_url = self._config.server_url / "api" / "Netzvertrag" / str(nv_id)
+        request_uuid = uuid.uuid4()
+        _logger.debug("[%s] requesting %s", str(request_uuid), request_url)
+        async with session.get(request_url) as response:
+            try:
+                if response.status == 404:
+                    return None
+                response.raise_for_status()
+            finally:
+                _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
+            response_json = await response.json()
+            result = Netzvertrag.model_validate(response_json)
+        return result
+
+    async def update_netzvertrag(
+        self, netzvertrag_id: uuid.UUID, changes: list[Callable[[Netzvertrag], None]]
+    ) -> Netzvertrag:
+        """
+        patch the given netzvertrag using the changes
+        """
+        session = await self._get_session()
+        netzvertrag = await self.get_netzvertrag_by_id(netzvertrag_id)
+        if netzvertrag is None:
+            raise ValueError(f"Netzvertrag with id {netzvertrag_id} not found")
+        patch_document = build_json_patch_document(netzvertrag, changes)
+        request_url = self._config.server_url / "api" / "v2" / "Netzvertrag" / str(netzvertrag_id)
+        request_uuid = uuid.uuid4()
+        _logger.debug("[%s] requesting %s", str(request_uuid), request_url)
+        async with session.patch(
+            request_url, data=patch_document.patch, headers={"Content-Type": "application/json-patch+json"}
+        ) as response:
+            response.raise_for_status()
+            _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
+            response_json = await response.json()
+            result = Netzvertrag.model_validate(response_json)
+        return result
