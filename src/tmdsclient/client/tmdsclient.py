@@ -104,7 +104,7 @@ class TmdsClient:
         request_uuid = uuid.uuid4()
         _logger.debug("[%s] requesting %s", str(request_uuid), request_url)
         async with session.patch(
-            request_url, data=patch_document.patch, headers={"Content-Type": "application/json-patch+json"}
+            request_url, json=patch_document.patch, headers={"Content-Type": "application/json-patch+json"}
         ) as response:
             response.raise_for_status()
             _logger.debug("[%s] response status: %s", str(request_uuid), response.status)

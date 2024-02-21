@@ -55,7 +55,7 @@ class TestGetNetzvertraege:
             nv.bo_model.vertragstatus = Vertragsstatus.STORNIERT
 
         def patch_endpoint_callback(url, **kwargs):  # pylint:disable=unused-argument
-            request_body = kwargs["data"]
+            request_body = kwargs["json"]
             json_patch = JsonPatch(request_body)
             modified_netzvertrag_json = netzvertrag_json.copy()
             result = json_patch.apply(modified_netzvertrag_json)
