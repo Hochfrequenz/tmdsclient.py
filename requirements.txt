@@ -30,9 +30,9 @@ multidict==6.0.5
     # via
     #   aiohttp
     #   yarl
-pydantic==2.6.1
+pydantic==2.6.2
     # via tmdsclient (pyproject.toml)
-pydantic-core==2.16.2
+pydantic-core==2.16.3
     # via pydantic
 typing-extensions==4.9.0
     # via
