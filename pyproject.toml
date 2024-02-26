@@ -24,7 +24,7 @@ dependencies = [
 dynamic = ["readme", "version"]
 
 [project.urls]
-Changelog = "https://github.com/Hochfrequenz/tmddsclient.py/releases"
+Changelog = "https://github.com/Hochfrequenz/tmdsclient.py/releases"
 Homepage = "https://github.com/Hochfrequenz/tmdsclient.py"
 
 [tool.black]
