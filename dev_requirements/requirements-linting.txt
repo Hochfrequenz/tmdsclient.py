@@ -6,9 +6,7 @@
 #
 annotated-types==0.6.0
     # via pydantic
-astroid==3.0.1
-    # via pylint
-colorama==0.4.6
+astroid==3.1.0
     # via pylint
 dill==0.3.7
     # via pylint
@@ -22,18 +20,21 @@ pydantic==2.6.1
     # via pylint-pydantic
 pydantic-core==2.16.2
     # via pydantic
-pylint==3.0.3
+pylint==3.1.0
     # via
-    #   -r requirements-linting.in
+    #   -r dev_requirements/requirements-linting.in
     #   pylint-plugin-utils
     #   pylint-pydantic
 pylint-plugin-utils==0.8.2
     # via pylint-pydantic
 pylint-pydantic==0.3.2
-    # via -r requirements-linting.in
+    # via -r dev_requirements/requirements-linting.in
+tomli==2.0.1
+    # via pylint
 tomlkit==0.11.6
     # via pylint
 typing-extensions==4.9.0
     # via
+    #   astroid
     #   pydantic
     #   pydantic-core
