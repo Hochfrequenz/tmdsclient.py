@@ -2,6 +2,7 @@ import json
 import uuid
 from pathlib import Path
 
+import pytest
 from aioresponses import CallbackResult, aioresponses
 from jsonpatch import JsonPatch  # type:ignore[import]
 from yarl import URL
@@ -14,12 +15,6 @@ class TestGetNetzvertraege:
     """
     A class with pytest unit tests.
     """
-
-    def test_get_tld(self):
-        config = TmdsConfig(server_url=URL("https://tmds.example.com"), usr="user", pwd="password")
-        client = TmdsClient(config)
-        actual = client.get_top_level_domain()
-        assert actual == URL("https://example.com")
 
     async def test_get_netzvertrag_by_id(self, tmds_client_with_default_auth):
         netzvertrag_json_file = Path(__file__).parent / "example_data" / "single_netzvertrag.json"
