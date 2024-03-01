@@ -2,12 +2,9 @@ import json
 import uuid
 from pathlib import Path
 
-import pytest
 from aioresponses import CallbackResult, aioresponses
 from jsonpatch import JsonPatch  # type:ignore[import]
-from yarl import URL
 
-from tmdsclient import TmdsClient, TmdsConfig
 from tmdsclient.models.netzvertrag import Bo4eVertrag, Netzvertrag, Vertragsstatus
 
 
