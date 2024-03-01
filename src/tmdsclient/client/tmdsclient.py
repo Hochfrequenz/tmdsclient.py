@@ -33,16 +33,17 @@ class TmdsClient:
         If the server_url is an IP address, None is returned.
         """
         # this method is unit tested; check the testcases to understand its branches
-        domain_parts = self._config.server_url.host.split(".")
+        domain_parts = self._config.server_url.host.split(".")  # type:ignore[union-attr]
         if all(x.isnumeric() for x in domain_parts):
             # seems like this is an IP address
             return None
         if not any(domain_parts):
             return self._config.server_url
+        tld: str
         if domain_parts[-1] == "localhost":
             tld = ".".join(domain_parts[-1:])
         else:
-            tld = ".".join(domain_parts[-2:]) if any(domain_parts) else None
+            tld = ".".join(domain_parts[-2:])
         return URL(self._config.server_url.scheme + "://" + tld)
 
     async def _get_session(self) -> ClientSession:
