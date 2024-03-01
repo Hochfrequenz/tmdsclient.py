@@ -6,6 +6,7 @@ import uuid
 from typing import Callable, Optional
 
 from aiohttp import BasicAuth, ClientSession, ClientTimeout
+from yarl import URL
 
 from tmdsclient.client.config import TmdsConfig
 from tmdsclient.models.netzvertrag import Netzvertrag, _ListOfNetzvertraege
@@ -25,6 +26,14 @@ class TmdsClient:
         self._session_lock = asyncio.Lock()
         self._session: Optional[ClientSession] = None
         _logger.info("Instantiated TmdsClient with server_url %s", str(self._config.server_url))
+
+    def get_top_level_domain(self) -> URL:
+        """
+        returns the top level domain of the server_url; this is useful to differentiate prod from test systems
+        """
+        domain_parts = self._config.server_url.host.split(".")
+        tld = ".".join(domain_parts[-2:]) if len(domain_parts) > 1 else None
+        return URL(self._config.server_url.scheme + "://" + tld)
 
     async def _get_session(self) -> ClientSession:
         """
