@@ -11,7 +11,7 @@ _SupportedEntityType = Literal["Netzvertrag"]
 
 class _IdPair(BaseModel):
     interne_id: str = Field(alias="interneId")
-    externe_id: str = Field(alias="externeId")
+    externe_id: str | None = Field(alias="externeId", default=None)
 
 
 class AllIdsResponse(RootModel[dict[_SupportedEntityType, list[_IdPair]]]):

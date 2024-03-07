@@ -15,7 +15,10 @@ class TestGetNetzvertraege:
     """
 
     async def test_get_all_netzvertrag_ids(self, tmds_client_with_default_auth):
-        all_ids = [{"interneId": str(uuid.uuid4()), "externeId": "fooo"} for _ in range(123)]
+        all_ids = [{"interneId": str(uuid.uuid4()), "externeId": "fooo"} for _ in range(123)] + [
+            {"interneId": str(uuid.uuid4())} for _ in range(2)
+        ]
+        # the external ID is not always filled
         client, tmds_config = tmds_client_with_default_auth
         with aioresponses() as mocked_tmds:
             mocked_get_url = f"{tmds_config.server_url}api/Netzvertrag/allIds"
