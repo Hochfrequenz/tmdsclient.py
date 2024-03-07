@@ -10,6 +10,7 @@ from more_itertools import chunked
 from yarl import URL
 
 from tmdsclient.client.config import TmdsConfig
+from tmdsclient.models import AllIdsResponse
 from tmdsclient.models.netzvertrag import Netzvertrag, _ListOfNetzvertraege
 from tmdsclient.models.patches import build_json_patch_document
 
@@ -125,7 +126,8 @@ class TmdsClient:
             response.raise_for_status()
             _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
             response_json = await response.json()
-            result = [uuid.UUID(x) for x in response_json]
+            all_ids_response = AllIdsResponse.model_validate(response_json)
+        result = [uuid.UUID(x.interne_id) for x in all_ids_response.root["Netzvertrag"]]
         _logger.info("There are %i Netzverträge on server side", len(result))
         return result
 

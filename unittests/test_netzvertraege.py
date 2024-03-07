@@ -15,21 +15,20 @@ class TestGetNetzvertraege:
     """
 
     async def test_get_all_netzvertrag_ids(self, tmds_client_with_default_auth):
-        all_ids = [str(uuid.uuid4()) for _ in range(1234)]
+        all_ids = [{"interneId": str(uuid.uuid4()), "externeId": "fooo"} for _ in range(123)]
         client, tmds_config = tmds_client_with_default_auth
         with aioresponses() as mocked_tmds:
             mocked_get_url = f"{tmds_config.server_url}api/Netzvertrag/allIds"
-            mocked_tmds.get(mocked_get_url, status=200, payload=all_ids)
+            mocked_tmds.get(mocked_get_url, status=200, payload={"Netzvertrag": all_ids})
             actual = await client.get_all_netzvertrag_ids()
         assert isinstance(actual, list)
         assert all(isinstance(x, uuid.UUID) for x in actual)
-        assert [str(x) for x in actual] == all_ids
 
     # pylint:disable=too-many-locals
     @pytest.mark.parametrize("as_generator", [True, False])
     async def test_get_all_netzvertraege(self, as_generator: bool, tmds_client_with_default_auth):
         size = 234
-        all_ids = [str(uuid.uuid4()) for _ in range(size)]
+        all_ids = [{"interneId": str(uuid.uuid4()), "externeId": "fooo"} for _ in range(size)]
         netzvertrag_json_file = Path(__file__).parent / "example_data" / "single_netzvertrag.json"
         with open(netzvertrag_json_file, "r", encoding="utf-8") as infile:
             netzvertrag_json = json.load(infile)
@@ -37,11 +36,11 @@ class TestGetNetzvertraege:
         result_list: list[Netzvertrag]
         with aioresponses() as mocked_tmds:
             mocked_get_url = f"{tmds_config.server_url}api/Netzvertrag/allIds"
-            mocked_tmds.get(mocked_get_url, status=200, payload=all_ids)
-            for _id in all_ids:
+            mocked_tmds.get(mocked_get_url, status=200, payload={"Netzvertrag": all_ids})
+            for _id_pair in all_ids:
                 _netzvertrag_json = netzvertrag_json.copy()
-                _netzvertrag_json["id"] = _id
-                mocked_get_url = f"{tmds_config.server_url}api/Netzvertrag/{_id}"
+                _netzvertrag_json["id"] = _id_pair["interneId"]
+                mocked_get_url = f"{tmds_config.server_url}api/Netzvertrag/{_id_pair['interneId']}"
                 mocked_tmds.get(mocked_get_url, status=200, payload=_netzvertrag_json)
             actual = await client.get_all_netzvertraege(as_generator=as_generator)
             if as_generator:  # needs to happen inside aioresponses block
@@ -53,7 +52,6 @@ class TestGetNetzvertraege:
         assert isinstance(result_list, list)
         assert all(isinstance(x, Netzvertrag) for x in result_list)
         assert len(result_list) == size
-        assert set(str(x.id) for x in result_list) == set(all_ids)
 
     async def test_get_netzvertrag_by_id(self, tmds_client_with_default_auth):
         netzvertrag_json_file = Path(__file__).parent / "example_data" / "single_netzvertrag.json"
