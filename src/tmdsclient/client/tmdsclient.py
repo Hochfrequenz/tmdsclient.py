@@ -165,11 +165,12 @@ class TmdsClient:
                     result_chunk = await asyncio.gather(*get_tasks)
                     _log_chunk_success(chunk_index, len(result_chunk))
                     for nv in result_chunk:
-                        yield nv
+                        yield nv  # the error handling now has to happen in the calling code
 
             return generator()  # This needs to be called to return an AsyncGenerator
         result: list[Netzvertrag] = []
         for chunk_index, id_chunk in enumerate(chunked(all_ids, chunk_size)):
+            # we probably need to account for the fact that this leads to HTTP 500 errors, let's see
             get_tasks = [self.get_netzvertrag_by_id(nv_id) for nv_id in id_chunk]
             result_chunk = await asyncio.gather(*get_tasks)
             if any(x is None for x in result_chunk):

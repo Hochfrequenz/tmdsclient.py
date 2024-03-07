@@ -25,6 +25,7 @@ class TestGetNetzvertraege:
         assert all(isinstance(x, uuid.UUID) for x in actual)
         assert [str(x) for x in actual] == all_ids
 
+    # pylint:disable=too-many-locals
     @pytest.mark.parametrize("as_generator", [True, False])
     async def test_get_all_netzvertraege(self, as_generator: bool, tmds_client_with_default_auth):
         size = 234
@@ -43,15 +44,15 @@ class TestGetNetzvertraege:
                 mocked_get_url = f"{tmds_config.server_url}api/Netzvertrag/{_id}"
                 mocked_tmds.get(mocked_get_url, status=200, payload=_netzvertrag_json)
             actual = await client.get_all_netzvertraege(as_generator=as_generator)
-            if as_generator:  # needs to happen inside of aioresponses block
+            if as_generator:  # needs to happen inside aioresponses block
                 result_list = []
                 async for x in actual:
                     result_list.append(x)
-        if not as_generator:  # outside of aioresponses block
+        if not as_generator:  # outside aioresponses block
             result_list = actual
         assert isinstance(result_list, list)
         assert all(isinstance(x, Netzvertrag) for x in result_list)
-        assert len(result_list) == 234
+        assert len(result_list) == size
         assert set(str(x.id) for x in result_list) == set(all_ids)
 
     async def test_get_netzvertrag_by_id(self, tmds_client_with_default_auth):
