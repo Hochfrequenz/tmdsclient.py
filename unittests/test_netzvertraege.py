@@ -46,7 +46,9 @@ class TestGetNetzvertraege:
             mocked_tmds.get(mocked_get_url, status=200, payload={"Netzvertrag": all_ids})
             for index, _id_pair in enumerate(all_ids):
                 mocked_get_url = f"{tmds_config.server_url}api/Netzvertrag/{_id_pair['interneId']}"
-                repeat_mock = 1 if with_http_500 and index >= 100 else 0  # because 123 is in the second size 100 chunk
+                repeat_mock = (
+                    True if with_http_500 and 200 > index >= 100 else False
+                )  # because 123 is in the second size 100 chunk
                 if index_of_error is not None and index == index_of_error:
                     mocked_tmds.get(mocked_get_url, status=500, payload="fatal shit", repeat=repeat_mock)
                 else:
