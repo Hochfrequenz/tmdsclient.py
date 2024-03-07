@@ -3,9 +3,10 @@
 import asyncio
 import logging
 import uuid
-from typing import Callable, Optional
+from typing import AsyncGenerator, Callable, Literal, Optional, overload
 
 from aiohttp import BasicAuth, ClientSession, ClientTimeout
+from more_itertools import chunked
 from yarl import URL
 
 from tmdsclient.client.config import TmdsConfig
@@ -13,6 +14,8 @@ from tmdsclient.models.netzvertrag import Netzvertrag, _ListOfNetzvertraege
 from tmdsclient.models.patches import build_json_patch_document
 
 _logger = logging.getLogger(__name__)
+
+_DEFAULT_CHUNK_SIZE = 100
 
 
 class TmdsClient:
@@ -108,6 +111,72 @@ class TmdsClient:
                 _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
             response_json = await response.json()
             result = Netzvertrag.model_validate(response_json)
+        return result
+
+    async def get_all_netzvertrag_ids(self) -> list[uuid.UUID]:
+        """
+        get all IDs of netzverträge that exist on server side
+        """
+        session = await self._get_session()
+        request_url = self._config.server_url / "api" / "Netzvertrag" / "allIds"
+        request_uuid = uuid.uuid4()
+        _logger.debug("[%s] requesting %s", str(request_uuid), request_url)
+        async with session.get(request_url) as response:
+            response.raise_for_status()
+            _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
+            response_json = await response.json()
+            result = [uuid.UUID(x) for x in response_json]
+        _logger.info("There are %i Netzverträge on server side", len(result))
+        return result
+
+    @overload
+    async def get_all_netzvertraege(
+        self, as_generator: Literal[False], chunk_size: int = _DEFAULT_CHUNK_SIZE
+    ) -> list[Netzvertrag] | AsyncGenerator[Netzvertrag, None]: ...
+
+    @overload
+    async def get_all_netzvertraege(
+        self, as_generator: Literal[True], chunk_size: int = _DEFAULT_CHUNK_SIZE
+    ) -> list[Netzvertrag] | AsyncGenerator[Netzvertrag, None]: ...
+
+    async def get_all_netzvertraege(
+        self, as_generator: bool, chunk_size: int = _DEFAULT_CHUNK_SIZE
+    ) -> list[Netzvertrag] | AsyncGenerator[Netzvertrag, None]:
+        """
+        download all netzverträge from TMDS
+        """
+        all_ids = await self.get_all_netzvertrag_ids()
+        all_ids_count = len(all_ids)
+
+        def _log_chunk_success(chunk_idx: int, chunk_length: int) -> None:
+            _logger.debug(
+                "Downloaded Netzvertrag (%i/%i) / chunk %i/%i",
+                chunk_size * chunk_idx + chunk_length,
+                all_ids_count,
+                chunk_idx + 1,
+                all_ids_count // chunk_size + 1,
+            )
+
+        if as_generator:
+
+            async def generator():
+                for chunk_index, id_chunk in enumerate(chunked(all_ids, chunk_size)):
+                    get_tasks = [self.get_netzvertrag_by_id(nv_id) for nv_id in id_chunk]
+                    result_chunk = await asyncio.gather(*get_tasks)
+                    _log_chunk_success(chunk_index, len(result_chunk))
+                    for nv in result_chunk:
+                        yield nv  # the error handling now has to happen in the calling code
+
+            return generator()  # This needs to be called to return an AsyncGenerator
+        result: list[Netzvertrag] = []
+        for chunk_index, id_chunk in enumerate(chunked(all_ids, chunk_size)):
+            # we probably need to account for the fact that this leads to HTTP 500 errors, let's see
+            get_tasks = [self.get_netzvertrag_by_id(nv_id) for nv_id in id_chunk]
+            result_chunk = await asyncio.gather(*get_tasks)
+            if any(x is None for x in result_chunk):
+                raise ValueError("This must not happen.")
+            _log_chunk_success(chunk_index, len(result_chunk))
+            result.extend(result_chunk)  # type:ignore[arg-type]
         return result
 
     async def update_netzvertrag(
