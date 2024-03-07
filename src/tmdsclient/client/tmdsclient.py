@@ -145,7 +145,7 @@ class TmdsClient:
         """
         download all netzverträge from TMDS
         """
-        all_ids = await self.get_all_netzvertrag_ids()  # Assuming this is an async call
+        all_ids = await self.get_all_netzvertrag_ids()
         all_ids_count = len(all_ids)
 
         def _log_chunk_success(chunk_idx: int, chunk_length: int) -> None:
