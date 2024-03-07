@@ -182,6 +182,7 @@ class TmdsClient:
                                     raise
                                 _logger.exception("Failed to download Netzvertrag %s; skipping", nv_id)
                                 continue
+
             return generator()  # This needs to be called to return an AsyncGenerator
         result: list[Netzvertrag] = []
         for chunk_index, id_chunk in enumerate(chunked(all_ids, chunk_size)):
