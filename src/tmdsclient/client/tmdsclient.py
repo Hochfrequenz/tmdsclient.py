@@ -132,14 +132,12 @@ class TmdsClient:
     @overload
     async def get_all_netzvertraege(
         self, as_generator: Literal[False], chunk_size: int = _DEFAULT_CHUNK_SIZE
-    ) -> list[Netzvertrag] | AsyncGenerator[Netzvertrag, None]:
-        ...
+    ) -> list[Netzvertrag] | AsyncGenerator[Netzvertrag, None]: ...
 
     @overload
     async def get_all_netzvertraege(
         self, as_generator: Literal[True], chunk_size: int = _DEFAULT_CHUNK_SIZE
-    ) -> list[Netzvertrag] | AsyncGenerator[Netzvertrag, None]:
-        ...
+    ) -> list[Netzvertrag] | AsyncGenerator[Netzvertrag, None]: ...
 
     async def get_all_netzvertraege(
         self, as_generator: bool, chunk_size: int = _DEFAULT_CHUNK_SIZE
