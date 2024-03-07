@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import uuid
 from pathlib import Path
 
@@ -32,7 +33,10 @@ class TestGetNetzvertraege:
     # pylint:disable=too-many-locals
     @pytest.mark.parametrize("with_http_500", [True, False])
     @pytest.mark.parametrize("as_generator", [True, False])
-    async def test_get_all_netzvertraege(self, with_http_500: bool, as_generator: bool, tmds_client_with_default_auth):
+    async def test_get_all_netzvertraege(
+        self, with_http_500: bool, as_generator: bool, tmds_client_with_default_auth, caplog
+    ):
+        caplog.set_level(logging.INFO)
         size = 234
         index_of_error = 123 if with_http_500 else None
         all_ids = [{"interneId": str(uuid.uuid4()), "externeId": "fooo"} for _ in range(size)]
@@ -69,7 +73,9 @@ class TestGetNetzvertraege:
             result_list = actual
         assert isinstance(result_list, list)
         assert all(isinstance(x, Netzvertrag) for x in result_list)
-        assert len(result_list) == size if not with_http_500 else size - 1
+        expected_size = size if not with_http_500 else size - 1
+        assert len(result_list) == expected_size
+        assert any(m for m in caplog.messages if f"Successfully downloaded {expected_size} Netzvertraege" in str(m))
 
     async def test_get_netzvertrag_by_id(self, tmds_client_with_default_auth):
         netzvertrag_json_file = Path(__file__).parent / "example_data" / "single_netzvertrag.json"

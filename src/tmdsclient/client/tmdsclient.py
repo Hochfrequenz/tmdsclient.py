@@ -128,7 +128,7 @@ class TmdsClient:
             response_json = await response.json()
             all_ids_response = AllIdsResponse.model_validate(response_json)
         result = [uuid.UUID(x.interne_id) for x in all_ids_response.root["Netzvertrag"]]
-        _logger.info("There are %i Netzverträge on server side", len(result))
+        _logger.info("There are %i Netzvertraege on server side", len(result))
         return result
 
     @overload
@@ -161,12 +161,14 @@ class TmdsClient:
         if as_generator:
 
             async def generator():
+                successfully_downloaded = 0
                 for chunk_index, id_chunk in enumerate(chunked(all_ids, chunk_size)):
                     get_tasks = [self.get_netzvertrag_by_id(nv_id) for nv_id in id_chunk]
                     try:
                         result_chunk = await asyncio.gather(*get_tasks)
                         for nv in result_chunk:
                             yield nv
+                            successfully_downloaded += 1
                     except ClientResponseError as chunk_client_error:
                         if chunk_client_error.status != 500:
                             raise
@@ -177,11 +179,13 @@ class TmdsClient:
                             # With a moderate sized chunk_size it should be fine as there are not that many 500 errors.
                             try:
                                 yield await self.get_netzvertrag_by_id(nv_id)
+                                successfully_downloaded += 1
                             except ClientResponseError as single_client_error:
                                 if single_client_error.status != 500:
                                     raise
                                 _logger.exception("Failed to download Netzvertrag %s; skipping", nv_id)
                                 continue
+                _logger.info("Successfully downloaded %i Netzvertraege", successfully_downloaded)
 
             return generator()  # This needs to be called to return an AsyncGenerator
         result: list[Netzvertrag] = []
@@ -209,6 +213,7 @@ class TmdsClient:
                 raise ValueError("This must not happen.")
             _log_chunk_success(chunk_index, len(result_chunk))
             result.extend(result_chunk)  # type:ignore[arg-type]
+        _logger.info("Successfully downloaded %i Netzvertraege", len(result))
         return result
 
     async def update_netzvertrag(
