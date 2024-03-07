@@ -5,7 +5,7 @@ import logging
 import uuid
 from typing import AsyncGenerator, Callable, Literal, Optional, overload
 
-from aiohttp import BasicAuth, ClientSession, ClientTimeout
+from aiohttp import BasicAuth, ClientResponseError, ClientSession, ClientTimeout
 from more_itertools import chunked
 from yarl import URL
 
@@ -128,7 +128,7 @@ class TmdsClient:
             response_json = await response.json()
             all_ids_response = AllIdsResponse.model_validate(response_json)
         result = [uuid.UUID(x.interne_id) for x in all_ids_response.root["Netzvertrag"]]
-        _logger.info("There are %i Netzverträge on server side", len(result))
+        _logger.info("There are %i Netzvertraege on server side", len(result))
         return result
 
     @overload
@@ -148,37 +148,72 @@ class TmdsClient:
         download all netzverträge from TMDS
         """
         all_ids = await self.get_all_netzvertrag_ids()
-        all_ids_count = len(all_ids)
 
         def _log_chunk_success(chunk_idx: int, chunk_length: int) -> None:
             _logger.debug(
                 "Downloaded Netzvertrag (%i/%i) / chunk %i/%i",
                 chunk_size * chunk_idx + chunk_length,
-                all_ids_count,
+                len(all_ids),
                 chunk_idx + 1,
-                all_ids_count // chunk_size + 1,
+                len(all_ids) // chunk_size + 1,
             )
 
         if as_generator:
 
             async def generator():
+                successfully_downloaded = 0
                 for chunk_index, id_chunk in enumerate(chunked(all_ids, chunk_size)):
                     get_tasks = [self.get_netzvertrag_by_id(nv_id) for nv_id in id_chunk]
-                    result_chunk = await asyncio.gather(*get_tasks)
-                    _log_chunk_success(chunk_index, len(result_chunk))
-                    for nv in result_chunk:
-                        yield nv  # the error handling now has to happen in the calling code
+                    try:
+                        result_chunk = await asyncio.gather(*get_tasks)
+                        for nv in result_chunk:
+                            yield nv
+                            successfully_downloaded += 1
+                    except ClientResponseError as chunk_client_error:
+                        if chunk_client_error.status != 500:
+                            raise
+                        _logger.warning("Failed to download chunk %i; Retrying one by one", chunk_index)
+                        for nv_id in id_chunk:
+                            # This is a bit dumb; If we had aiostream here, we could create multiple requests at once
+                            # and yield from a merged stream. This might be a future improvement... For now it's ok.
+                            # With a moderate sized chunk_size it should be fine as there are not that many 500 errors.
+                            try:
+                                yield await self.get_netzvertrag_by_id(nv_id)
+                                successfully_downloaded += 1
+                            except ClientResponseError as single_client_error:
+                                if single_client_error.status != 500:
+                                    raise
+                                _logger.exception("Failed to download Netzvertrag %s; skipping", nv_id)
+                                continue
+                _logger.info("Successfully downloaded %i Netzvertraege", successfully_downloaded)
 
             return generator()  # This needs to be called to return an AsyncGenerator
         result: list[Netzvertrag] = []
         for chunk_index, id_chunk in enumerate(chunked(all_ids, chunk_size)):
             # we probably need to account for the fact that this leads to HTTP 500 errors, let's see
             get_tasks = [self.get_netzvertrag_by_id(nv_id) for nv_id in id_chunk]
-            result_chunk = await asyncio.gather(*get_tasks)
+            try:
+                result_chunk = await asyncio.gather(*get_tasks)
+            except ClientResponseError as chunk_client_error:
+                if chunk_client_error.status != 500:
+                    raise
+                _logger.warning("Failed to download chunk %i; Retrying 1 by 1", chunk_index)
+                result_chunk = []
+                for nv_id in id_chunk:
+                    try:
+                        nv = await self.get_netzvertrag_by_id(nv_id)
+                    except ClientResponseError as single_client_error:
+                        if single_client_error.status != 500:
+                            raise
+                        _logger.exception("Failed to download Netzvertrag %s; skipping", nv_id)
+                        continue
+                    assert nv is not None
+                    result_chunk.append(nv)
             if any(x is None for x in result_chunk):
                 raise ValueError("This must not happen.")
             _log_chunk_success(chunk_index, len(result_chunk))
             result.extend(result_chunk)  # type:ignore[arg-type]
+        _logger.info("Successfully downloaded %i Netzvertraege", len(result))
         return result
 
     async def update_netzvertrag(
