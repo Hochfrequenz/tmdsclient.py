@@ -169,10 +169,10 @@ class TmdsClient:
                         for nv in result_chunk:
                             yield nv
                             successfully_downloaded += 1
-                    except ClientResponseError as chunk_client_error:
-                        if chunk_client_error.status != 500:
+                    except (asyncio.TimeoutError, ClientResponseError) as chunk_error:
+                        if isinstance(chunk_error, ClientResponseError) and chunk_error.status != 500:
                             raise
-                        _logger.warning("Failed to download chunk %i; Retrying one by one", chunk_index)
+                        _logger.warning("Failed to download chunk %i; Retrying one by one; %s", chunk_index, str(chunk_error))
                         for nv_id in id_chunk:
                             # This is a bit dumb; If we had aiostream here, we could create multiple requests at once
                             # and yield from a merged stream. This might be a future improvement... For now it's ok.
@@ -180,8 +180,8 @@ class TmdsClient:
                             try:
                                 yield await self.get_netzvertrag_by_id(nv_id)
                                 successfully_downloaded += 1
-                            except ClientResponseError as single_client_error:
-                                if single_client_error.status != 500:
+                            except (asyncio.TimeoutError, ClientResponseError) as single_error:
+                                if isinstance(single_error, ClientResponseError) and single_error.status != 500:
                                     raise
                                 _logger.exception("Failed to download Netzvertrag %s; skipping", nv_id)
                                 continue
