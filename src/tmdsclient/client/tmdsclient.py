@@ -172,7 +172,9 @@ class TmdsClient:
                     except (asyncio.TimeoutError, ClientResponseError) as chunk_error:
                         if isinstance(chunk_error, ClientResponseError) and chunk_error.status != 500:
                             raise
-                        _logger.warning("Failed to download chunk %i; Retrying one by one; %s", chunk_index, str(chunk_error))
+                        _logger.warning(
+                            "Failed to download chunk %i; Retrying one by one; %s", chunk_index, str(chunk_error)
+                        )
                         for nv_id in id_chunk:
                             # This is a bit dumb; If we had aiostream here, we could create multiple requests at once
                             # and yield from a merged stream. This might be a future improvement... For now it's ok.
