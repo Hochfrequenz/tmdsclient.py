@@ -20,7 +20,7 @@ _DEFAULT_CHUNK_SIZE = 100
 
 
 def _log_chunk_success(chunk_size: int, total_size: int, chunk_idx: int, chunk_length: int) -> None:
-    _logger.debug(
+    _logger.info(
         "Downloaded Netzvertrag (%i/%i) / chunk %i/%i",
         chunk_size * chunk_idx + chunk_length,
         total_size,
