@@ -216,7 +216,7 @@ class TmdsClient:
             except ClientResponseError as chunk_client_error:
                 if chunk_client_error.status not in _retry_worthy_http_status_codes:
                     raise
-                _logger.warning("Failed to download chunk %i (%s); Retrying 1 by 1", chunk_client_error, chunk_index)
+                _logger.warning("Failed to download chunk %i (%s); Retrying 1 by 1", chunk_index, str(chunk_client_error) )
                 result_chunk = []
                 for nv_id in id_chunk:
                     try:
