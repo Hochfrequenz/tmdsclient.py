@@ -29,6 +29,13 @@ def _log_chunk_success(chunk_size: int, total_size: int, chunk_idx: int, chunk_l
     )
 
 
+_retry_worthy_http_status_codes = {500, 502}
+"""
+if a GET request fails with one of these status codes, it might be worth retrying and the error code might simply be 
+due to high load
+"""
+
+
 class TmdsClient:
     """
     an async wrapper around the TMDS API
@@ -164,7 +171,10 @@ class TmdsClient:
                         chunk_length=len(_result_chunk),
                     )
                 except (asyncio.TimeoutError, ClientResponseError) as chunk_error:
-                    if isinstance(chunk_error, ClientResponseError) and chunk_error.status != 500:
+                    if (
+                        isinstance(chunk_error, ClientResponseError)
+                        and chunk_error.status not in _retry_worthy_http_status_codes
+                    ):
                         raise
                     _logger.warning(
                         "Failed to download chunk %i; Retrying one by one; %s", chunk_index, str(chunk_error)
@@ -179,7 +189,10 @@ class TmdsClient:
                             successfully_downloaded += 1
                             success_in_this_chunk += 1
                         except (asyncio.TimeoutError, ClientResponseError) as single_error:
-                            if isinstance(single_error, ClientResponseError) and single_error.status != 500:
+                            if (
+                                isinstance(single_error, ClientResponseError)
+                                and single_error.status not in _retry_worthy_http_status_codes
+                            ):
                                 raise
                             _logger.exception("Failed to download Netzvertrag %s; skipping", _nv_id)
                             continue
@@ -201,15 +214,17 @@ class TmdsClient:
             try:
                 result_chunk = await asyncio.gather(*get_tasks)
             except ClientResponseError as chunk_client_error:
-                if chunk_client_error.status != 500:
+                if chunk_client_error.status not in _retry_worthy_http_status_codes:
                     raise
-                _logger.warning("Failed to download chunk %i; Retrying 1 by 1", chunk_index)
+                _logger.warning(
+                    "Failed to download chunk %i (%s); Retrying 1 by 1", chunk_index, str(chunk_client_error)
+                )
                 result_chunk = []
                 for nv_id in id_chunk:
                     try:
                         nv = await self.get_netzvertrag_by_id(nv_id)
                     except ClientResponseError as single_client_error:
-                        if single_client_error.status != 500:
+                        if single_client_error.status not in _retry_worthy_http_status_codes:
                             raise
                         _logger.exception("Failed to download Netzvertrag %s; skipping", nv_id)
                         continue
