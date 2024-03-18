@@ -39,6 +39,13 @@ class Bo4eVertrag(BaseModel):
     # https://github.com/Hochfrequenz/BO4E-dotnet/issues/417
 
 
+class TmdsMarktlokation(BaseModel):
+    """tmds wrapper around a bo4e marktlokation"""
+
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
+    id: str  #: e.g. '32631452574'
+
+
 class Netzvertrag(BaseModel):
     """
     a TMDS netzvertrag
@@ -47,6 +54,7 @@ class Netzvertrag(BaseModel):
     model_config = ConfigDict(extra="allow", populate_by_name=True)
     id: UUID
     bo_model: Bo4eVertrag | None = Field(alias="boModel", default=None)
+    marktlokation: TmdsMarktlokation | None = Field(alias="marktlokation", default=None)
 
 
 class _ListOfNetzvertraege(RootModel[list[Netzvertrag]]):
