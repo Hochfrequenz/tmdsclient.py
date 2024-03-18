@@ -105,6 +105,10 @@ class TestGetNetzvertraege:
         assert isinstance(actual[0].bo_model.vertragstatus, Vertragsstatus)
         assert any(actual[0].model_extra), "Unmapped properties should be stored in model_extra (Netzvertrag)"
         assert any(actual[0].bo_model.model_extra), "Unmapped properties should be stored in model_extra (Bo4eVertrag)"
+        assert actual[0].marktlokation.id == "97149628801"
+        assert any(
+            actual[0].marktlokation.model_extra
+        ), "Unmapped properties should be stored in model_extra (Marktlokation)"
 
     async def test_update_netzvertrag(self, tmds_client_with_default_auth):
         netzvertrag_json_file = Path(__file__).parent / "example_data" / "single_netzvertrag.json"
