@@ -21,6 +21,7 @@ dependencies = [
     "aiohttp[speedups]>=3.9.3",
     "jsonpatch",
     "more_itertools",
+    "bo4e"
 ] # add all the dependencies here
 dynamic = ["readme", "version"]
 
