@@ -15,6 +15,7 @@ class Vertragsteil(BaseModel):
     BO4E COM Vertragsteil
     """
 
+    guid: UUID | None = None
     vertragsteilbeginn: AwareDatetime
     vertragsteilende: AwareDatetime | None = None
     lokation: str

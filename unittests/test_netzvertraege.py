@@ -91,6 +91,7 @@ class TestGetNetzvertraege:
         assert any(actual.bo_model.vertragsteile)
         assert all(isinstance(x, Vertragsteil) for x in actual.bo_model.vertragsteile)
         assert all(x.lokation is not None for x in (vt for vt in actual.bo_model.vertragsteile))
+        assert all(x.guid is not None for x in (vt for vt in actual.bo_model.vertragsteile))
         assert all(x.jahresverbrauchsprognose.wert is not None for x in (vt for vt in actual.bo_model.vertragsteile))
 
     async def test_get_netzvertraege_by_melo(self, tmds_client_with_default_auth):
