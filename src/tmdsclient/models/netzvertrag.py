@@ -18,7 +18,7 @@ class Vertragsteil(BaseModel):
     guid: UUID | None = None
     vertragsteilbeginn: AwareDatetime
     vertragsteilende: AwareDatetime | None = None
-    lokation: str
+    lokation: str | None = None
     jahresverbrauchsprognose: Menge | None = None
     kundenwert: Menge | None = None
 
