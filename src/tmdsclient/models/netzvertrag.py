@@ -7,6 +7,20 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, RootModel
 
+from tmdsclient.models.bo4e_stub import Menge
+
+
+class Vertragsteil(BaseModel):
+    """
+    BO4E COM Vertragsteil
+    """
+
+    vertragsteilbeginn: AwareDatetime
+    vertragsteilende: AwareDatetime | None = None
+    lokation: str
+    jahresverbrauchsprognose: Menge | None = None
+    kundenwert: Menge | None = None
+
 
 class Vertragsstatus(StrEnum):
     """
@@ -37,6 +51,7 @@ class Bo4eVertrag(BaseModel):
     vertragstatus: Vertragsstatus
     # note that in TMDS / BO4E.net the property is called "vertragstatus" but in Python 'vertragsstatus'
     # https://github.com/Hochfrequenz/BO4E-dotnet/issues/417
+    vertragsteile: list[Vertragsteil] | None = None
 
 
 class TmdsMarktlokation(BaseModel):

@@ -50,10 +50,78 @@
     },
     "vertragsteile": [
       {
-        "vertragsteilbeginn": "2022-03-31T22:00:00+00:00",
-        "lokation": "11XSWXXXXXXXXXXXX",
-        "timestamp": "2022-05-19T13:16:24.254447+00:00",
-        "guid": "4633e8d0-e27e-411c-b87b-0f4fe640beed"
+        "vertragsteilbeginn": "2021-06-30T22:00:00+00:00",
+        "vertragsteilende": "2021-09-29T22:00:00+00:00",
+        "lokation": "GASPOOLEL0050002",
+        "jahresverbrauchsprognose": {
+          "timestamp": "2021-10-11T15:06:35.225177+00:00",
+          "guid": "6b6de421-a337-4433-87a4-f8d79b74cc02",
+          "wert": 123.0,
+          "einheit": "KWH"
+        },
+        "kundenwert": {
+          "timestamp": "2021-10-11T15:06:35.225177+00:00",
+          "guid": "a3b316e8-b369-4247-8326-ad6ca7f6f4f3",
+          "wert": 9.7979,
+          "einheit": "ANZAHL"
+        },
+        "timestamp": "2021-10-11T15:06:35.225177+00:00",
+        "guid": "ebfe2f1c-5e44-48b1-acfa-bd4aaedb6c18",
+        "Profil": "1D4",
+        "Profiltyp": "Z12",
+        "Temperaturmessstelle.ID": "10338",
+        "Temperaturmessstelle.Anbieter": "ZT1"
+      },
+      {
+        "vertragsteilbeginn": "2021-09-30T22:00:00+00:00",
+        "vertragsteilende": "2021-09-29T22:00:00+00:00",
+        "lokation": "THE0BFL002410004",
+        "jahresverbrauchsprognose": {
+          "timestamp": "2021-10-11T15:06:35.225177+00:00",
+          "guid": "b08de98a-b935-4cba-80bc-3923890746a3",
+          "wert": 456.0,
+          "einheit": "KWH"
+        },
+        "timestamp": "2021-10-11T15:06:35.225177+00:00",
+        "guid": "895aa59b-82e0-490f-9d61-fb1857555141",
+        "Profil": "1D4",
+        "Profiltyp": "Z12",
+        "Temperaturmessstelle.ID": "10338",
+        "Temperaturmessstelle.Anbieter": "ZT1"
+      },
+      {
+        "vertragsteilbeginn": "2021-09-30T22:00:00+00:00",
+        "vertragsteilende": "2021-09-29T22:00:00+00:00",
+        "lokation": "THE0BFL002410004",
+        "jahresverbrauchsprognose": {
+          "timestamp": "2021-10-11T15:06:35.225177+00:00",
+          "guid": "4894de16-af62-47d1-b8da-7106e16f8e58",
+          "wert": 789.0,
+          "einheit": "KWH"
+        },
+        "timestamp": "2021-10-11T15:06:35.225177+00:00",
+        "guid": "73fadac5-d955-4662-a2f0-0d47342ab10f",
+        "Profil": "1D4",
+        "Profiltyp": "Z12",
+        "Temperaturmessstelle.ID": "10338",
+        "Temperaturmessstelle.Anbieter": "ZT1"
+      },
+      {
+        "vertragsteilbeginn": "2021-09-30T22:00:00+00:00",
+        "vertragsteilende": "2021-11-29T23:00:00+00:00",
+        "lokation": "THE0BFL002410004",
+        "jahresverbrauchsprognose": {
+          "timestamp": "2021-10-11T15:06:35.225177+00:00",
+          "guid": "4b0a5742-a310-4406-ab14-7e008542f00b",
+          "wert": 12.0,
+          "einheit": "KWH"
+        },
+        "timestamp": "2021-10-11T15:06:35.225177+00:00",
+        "guid": "b79f4ff1-c997-45b1-93b6-e8bce5638425",
+        "Profil": "1D4",
+        "Profiltyp": "Z12",
+        "Temperaturmessstelle.ID": "10338",
+        "Temperaturmessstelle.Anbieter": "ZT1"
       }
     ],
     "gemeinderabatt": 0.00

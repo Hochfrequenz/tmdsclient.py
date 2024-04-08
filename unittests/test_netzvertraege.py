@@ -9,7 +9,7 @@ from aiohttp import ClientResponseError
 from aioresponses import CallbackResult, aioresponses
 from jsonpatch import JsonPatch  # type:ignore[import]
 
-from tmdsclient.models.netzvertrag import Bo4eVertrag, Netzvertrag, Vertragsstatus
+from tmdsclient.models.netzvertrag import Bo4eVertrag, Netzvertrag, Vertragsstatus, Vertragsteil
 
 
 class TestGetNetzvertraege:
@@ -88,6 +88,10 @@ class TestGetNetzvertraege:
             mocked_tmds.get(mocked_get_url, status=200, payload=netzvertrag_json)
             actual = await client.get_netzvertrag_by_id(nv_id)
         assert isinstance(actual, Netzvertrag)
+        assert any(actual.bo_model.vertragsteile)
+        assert all(isinstance(x, Vertragsteil) for x in actual.bo_model.vertragsteile)
+        assert all(x.lokation is not None for x in (vt for vt in actual.bo_model.vertragsteile))
+        assert all(x.jahresverbrauchsprognose.wert is not None for x in (vt for vt in actual.bo_model.vertragsteile))
 
     async def test_get_netzvertraege_by_melo(self, tmds_client_with_default_auth):
         netzvertraege_json_file = Path(__file__).parent / "example_data" / "list_of_netzvertraege.json"
