@@ -81,3 +81,21 @@ class TestTmdsZaehler:
             assert zaehler is not None
             assert any(zaehler)
             assert zaehler.id == uuid.UUID("6b024ea2-82a3-4ae9-be06-01229817373a")
+
+    async def test_set_zaehler_schmutzwasser_relevanz(self, tmds_client_with_default_auth):
+        client, settings = tmds_client_with_default_auth
+        zaehler_id = uuid.UUID("6b024ea2-82a3-4ae9-be06-01229817373a")
+        zaehler_with_updated_swr = _get_zaehler_model()
+        zaehler_with_updated_swr.is_schmutzwasser_relevant = True
+
+        with aioresponses() as mocked_tmds:
+            mocked_post_url = (
+                f"{settings.server_url}api/v2/Zaehler/Zaehler-{zaehler_id}/schmutzwasserRelevanz?istRelevant=true"
+            )
+            mocked_tmds.post(
+                mocked_post_url,
+                status=200,
+                payload=zaehler_with_updated_swr.model_dump_json(by_alias=True),
+            )
+            was_set_successfully = await client.set_schmutzwasser_relevanz(zaehler_id, True)
+            assert was_set_successfully is True
