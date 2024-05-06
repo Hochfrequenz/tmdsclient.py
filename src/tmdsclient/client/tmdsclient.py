@@ -14,6 +14,7 @@ from tmdsclient.models import AllIdsResponse
 from tmdsclient.models.messlokation import Messlokation
 from tmdsclient.models.netzvertrag import Netzvertrag, _ListOfNetzvertraege
 from tmdsclient.models.patches import build_json_patch_document
+from tmdsclient.models.zaehler import Zaehler
 
 _logger = logging.getLogger(__name__)
 
@@ -302,4 +303,23 @@ class TmdsClient:
                 _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
             response_json = await response.json()
             result = Messlokation.model_validate(response_json)
+        return result
+
+    async def get_zaehler(self, zaehler_id: uuid.UUID) -> Zaehler | None:
+        """
+        provide a Zaehler-ID, get the matching Zaehler in return (or None, if 404)
+        """
+        session = await self._get_session()
+        request_url = self._config.server_url / "api" / "Zaehler" / str(zaehler_id)
+        request_uuid = uuid.uuid4()
+        _logger.debug("[%s] requesting %s", str(request_uuid), request_url)
+        async with session.get(request_url) as response:
+            try:
+                if response.status == 404:
+                    return None
+                response.raise_for_status()
+            finally:
+                _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
+            response_json = await response.json()
+            result = Zaehler.model_validate(response_json)
         return result
