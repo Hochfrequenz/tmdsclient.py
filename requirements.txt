@@ -12,6 +12,8 @@ annotated-types==0.6.0
     # via pydantic
 attrs==23.2.0
     # via aiohttp
+bo4e==202401.1.1
+    # via tmdsclient (pyproject.toml)
 brotli==1.1.0
     # via aiohttp
 frozenlist==1.4.1
@@ -20,6 +22,8 @@ frozenlist==1.4.1
     #   aiosignal
 idna==3.7
     # via yarl
+iso3166==2.1.1
+    # via bo4e
 jsonpatch==1.33
     # via tmdsclient (pyproject.toml)
 jsonpointer==2.4
@@ -30,10 +34,14 @@ multidict==6.0.5
     # via
     #   aiohttp
     #   yarl
-pydantic==2.6.4
-    # via tmdsclient (pyproject.toml)
-pydantic-core==2.16.3
+pydantic==2.7.1
+    # via
+    #   bo4e
+    #   tmdsclient (pyproject.toml)
+pydantic-core==2.18.2
     # via pydantic
+pyhumps==3.8.0
+    # via bo4e
 typing-extensions==4.11.0
     # via
     #   pydantic
