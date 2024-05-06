@@ -11,6 +11,7 @@ from yarl import URL
 
 from tmdsclient.client.config import TmdsConfig
 from tmdsclient.models import AllIdsResponse
+from tmdsclient.models.messlokation import Messlokation
 from tmdsclient.models.netzvertrag import Netzvertrag, _ListOfNetzvertraege
 from tmdsclient.models.patches import build_json_patch_document
 
@@ -282,4 +283,23 @@ class TmdsClient:
             _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
             response_json = await response.json()
             result = Netzvertrag.model_validate(response_json)
+        return result
+
+    async def get_messlokation(self, messlokation_id: str) -> Messlokation | None:
+        """
+        provide a Messlokation-ID, get the matching MeLo in return (or None, if 404)
+        """
+        session = await self._get_session()
+        request_url = self._config.server_url / "api" / "Messlokation" / messlokation_id
+        request_uuid = uuid.uuid4()
+        _logger.debug("[%s] requesting %s", str(request_uuid), request_url)
+        async with session.get(request_url) as response:
+            try:
+                if response.status == 404:
+                    return None
+                response.raise_for_status()
+            finally:
+                _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
+            response_json = await response.json()
+            result = Messlokation.model_validate(response_json)
         return result
