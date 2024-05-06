@@ -50,7 +50,7 @@ def _get_zaehler_model() -> Zaehler:
                     "landescode": "DE",
                 },
             },
-            "gateway": "Referenz auf ein verbautes SMGW",
+            "gateway": "Reference auf ein verbautes SMGW",
             "fernschaltung": "NICHT_VORHANDEN",
             "messwerterfassung": "MANUELL_AUSGELESENE",
         },
