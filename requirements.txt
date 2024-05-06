@@ -34,7 +34,7 @@ multidict==6.0.5
     # via
     #   aiohttp
     #   yarl
-pydantic==2.6.4
+pydantic==2.7.1
     # via
     #   bo4e
     #   tmdsclient (pyproject.toml)
