@@ -323,3 +323,26 @@ class TmdsClient:
             response_json = await response.json()
             result = Zaehler.model_validate(response_json)
         return result
+
+    async def set_schmutzwasser_relevanz(self, zaehler_id: uuid.UUID, is_waste_water_relevant: bool) -> bool:
+        """
+        Set the waste water relevancy of a Zaehler.
+        Returns true if the operation was successful.
+        """
+        url = (
+            self._config.server_url
+            / "api"
+            / "v2"
+            / "Zaehler"
+            / f"Zaehler-{zaehler_id}"
+            / "schmutzwasserRelevanz"
+            % {"istRelevant": str(is_waste_water_relevant).lower()}
+        )
+        _logger.info(
+            "Changing Schmutzwasserrelevanz of zaehler %s to %s", str(zaehler_id), str(is_waste_water_relevant)
+        )
+        session = await self._get_session()
+        async with session.post(url, ssl=True) as response:
+            response.raise_for_status()
+            updated_zaehler = Zaehler.model_validate_json(await response.json())
+            return updated_zaehler.is_schmutzwasser_relevant == is_waste_water_relevant
