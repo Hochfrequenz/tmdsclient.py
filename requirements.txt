@@ -56,3 +56,6 @@ typing-extensions==4.11.0
     #   pydantic-core
 yarl==1.9.4
     # via aiohttp
+
+pytest~=8.2.0
+aioresponses~=0.7.6
