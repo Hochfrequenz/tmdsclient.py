@@ -8,7 +8,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from src.tmdsclient.models.adresse import Adresse
+from tmdsclient.models.adresse import Adresse
 
 
 class Plattformfaehig(BaseModel):
