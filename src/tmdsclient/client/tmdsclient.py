@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import uuid
+from datetime import datetime, timedelta
 from typing import AsyncGenerator, Callable, Literal, Optional, overload
 
 from aiohttp import BasicAuth, ClientResponseError, ClientSession, ClientTimeout
@@ -33,7 +34,7 @@ def _log_chunk_success(chunk_size: int, total_size: int, chunk_idx: int, chunk_l
 
 _retry_worthy_http_status_codes = {500, 502}
 """
-if a GET request fails with one of these status codes, it might be worth retrying and the error code might simply be 
+if a GET request fails with one of these status codes, it might be worth retrying and the error code might simply be
 due to high load
 """
 
@@ -97,6 +98,31 @@ class TmdsClient:
                 await self._session.close()
                 self._session = None
 
+    async def _poll_until_has_been_handled(
+        self, tmds_event_id: uuid.UUID, timeout: timedelta = timedelta(seconds=30)
+    ) -> bool:
+        """
+        Polls the /hasBeenHandledEndpoint once per second until the event has been handled
+        Returns true if the event has been handled, false if the timeout has been reached.
+        """
+        url = self._config.server_url / "api/Event" / "hasBeenHandled" / str(tmds_event_id)
+        session = await self._get_session()
+        timeout_in_seconds: int = int(timeout.total_seconds())
+        seconds_left = timeout_in_seconds
+        while seconds_left > 0:
+            async with session.get(url, ssl=True) as response:
+                body = await response.text()
+                if body.lower() in {'"true"', "true"}:
+                    _logger.debug("Event %s has been handled", tmds_event_id)
+                    return True
+
+                _logger.log(5, "Event %s has not been handled yet. Waiting another second", tmds_event_id)
+                await asyncio.sleep(1)
+                seconds_left -= 1
+        _logger.warning("Event %s has not been handled after %s seconds", tmds_event_id, timeout_in_seconds)
+        await asyncio.sleep(60)  # slow down. slow down, at least in this thread
+        return False
+
     async def get_netzvertraege_for_melo(self, melo_id: str) -> list[Netzvertrag]:
         """
         provide a melo id, e.g. 'DE1234567890123456789012345678901' and get the corresponding netzvertrag
@@ -132,6 +158,31 @@ class TmdsClient:
             response_json = await response.json()
             result = Netzvertrag.model_validate(response_json)
         return result
+
+    async def set_plattformfaehigkeit(
+        self, external_ao_id: str, change_date: datetime, is_plattformfaehig: bool = True
+    ) -> bool:
+        """
+        set the plattformfaehigkeit of an Anschlussobjekt; return true on success, false or raises exception on failure
+        """
+        if change_date.tzinfo is None:
+            raise ValueError("change_date must be timezone aware")
+        url = (
+            self._config.server_url
+            / "api"
+            / "Anschlussobjekt"
+            / external_ao_id
+            / "setPlattform"
+            % {"aenderungsdatum": change_date.isoformat(), "plattformfaehig": str(is_plattformfaehig).lower()}
+        )
+        session = await self._get_session()
+        async with session.post(url, ssl=True) as response:
+            # the beloved tmds api does not consistently return an event id
+            id_string = response.headers.get("x-event-id")
+        if id_string is None:
+            return True
+        tmds_event_id = uuid.UUID(id_string)
+        return await self._poll_until_has_been_handled(tmds_event_id)
 
     async def get_all_netzvertrag_ids(self) -> list[uuid.UUID]:
         """
@@ -244,12 +295,14 @@ class TmdsClient:
     @overload
     async def get_all_netzvertraege(
         self, as_generator: Literal[False], chunk_size: int = _DEFAULT_CHUNK_SIZE
-    ) -> list[Netzvertrag]: ...
+    ) -> list[Netzvertrag]:
+        ...
 
     @overload
     async def get_all_netzvertraege(
         self, as_generator: Literal[True], chunk_size: int = _DEFAULT_CHUNK_SIZE
-    ) -> AsyncGenerator[Netzvertrag, None]: ...
+    ) -> AsyncGenerator[Netzvertrag, None]:
+        ...
 
     async def get_all_netzvertraege(
         self, as_generator: bool, chunk_size: int = _DEFAULT_CHUNK_SIZE
