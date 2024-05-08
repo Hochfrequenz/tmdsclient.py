@@ -13,7 +13,7 @@ from tmdsclient.models.adresse import Adresse
 
 class Plattformfaehig(BaseModel):
     """
-    Plattformfähig means that the Anschlussobjekt may be used in the Plattform.
+    Plattformfaehig means that the Anschlussobjekt may be used in the platform.
     This is a time-dependent property.
     """
 
