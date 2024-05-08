@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime, timezone
 
 from aioresponses import aioresponses
-from yarl import URL
 
 
 class TestTmdsAnschlussobjekt:
