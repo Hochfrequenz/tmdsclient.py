@@ -70,7 +70,7 @@ tomli==2.0.1
     #   pyproject-hooks
 twine==5.1.0
     # via -r requirements-packaging.in
-urllib3==2.2.1
+urllib3==2.2.2
     # via
     #   requests
     #   twine
