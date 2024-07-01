@@ -20,7 +20,7 @@ pydantic==2.7.1
     # via pylint-pydantic
 pydantic-core==2.18.2
     # via pydantic
-pylint==3.2.3
+pylint==3.2.5
     # via
     #   -r dev_requirements/requirements-linting.in
     #   pylint-plugin-utils
