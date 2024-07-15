@@ -30,7 +30,7 @@ iso3166==2.1.1
     # via bo4e
 jsonpatch==1.33
     # via tmdsclient (pyproject.toml)
-jsonpointer==2.4
+jsonpointer==3.0.0
     # via jsonpatch
 more-itertools==10.2.0
     # via tmdsclient (pyproject.toml)
