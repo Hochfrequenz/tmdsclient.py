@@ -42,7 +42,7 @@ pycares==4.4.0
     # via aiodns
 pycparser==2.22
     # via cffi
-pydantic==2.7.1
+pydantic==2.9.1
     # via
     #   bo4e
     #   tmdsclient (pyproject.toml)
