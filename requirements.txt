@@ -18,7 +18,7 @@ bo4e==202401.2.1
     # via tmdsclient (pyproject.toml)
 brotli==1.1.0
     # via aiohttp
-cffi==1.16.0
+cffi==1.17.1
     # via pycares
 frozenlist==1.4.1
     # via
