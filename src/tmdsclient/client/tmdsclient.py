@@ -327,7 +327,7 @@ class TmdsClient:
         patch_document = build_json_patch_document(netzvertrag, changes)
         request_url = self._config.server_url / "api" / "v2" / "Netzvertrag" / str(netzvertrag_id)
         request_uuid = uuid.uuid4()
-        _logger.debug("[%s] requesting %s", str(request_uuid), request_url)
+        _logger.debug("[%s] patching %s with body %s", str(request_uuid), request_url, str(patch_document))
         async with session.patch(
             request_url, json=patch_document.patch, headers={"Content-Type": "application/json-patch+json"}
         ) as response:
