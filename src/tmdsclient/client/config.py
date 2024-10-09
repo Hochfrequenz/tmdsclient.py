@@ -2,6 +2,8 @@
 contains a class with which the TMDS client is instantiated/configured
 """
 
+from typing import Any
+
 from pydantic import BaseModel, ConfigDict, HttpUrl, field_validator, model_validator
 from yarl import URL
 
@@ -22,7 +24,7 @@ class TmdsConfig(BaseModel):
 
     # pylint:disable=no-self-argument
     @field_validator("server_url")
-    def validate_url(cls, value):
+    def validate_url(cls, value: Any) -> URL:
         """
         check that the value is a yarl URL
         """
@@ -51,7 +53,7 @@ class BasicAuthTmdsConfig(TmdsConfig):
 
     # pylint:disable=no-self-argument
     @field_validator("usr", "pwd")
-    def validate_string_is_not_empty(cls, value):
+    def validate_string_is_not_empty(cls, value: str) -> str:
         """
         Check that no one tries to bypass validation with empty strings.
         If we had wanted that you can omit values, we had used Optional[str] instead of str.
@@ -87,8 +89,10 @@ class OAuthTmdsConfig(TmdsConfig):
     This is useful when you have ways to get a token but not a client id and secret.
     """
 
-    @model_validator(mode="after")
-    def check_secret_or_token_is_present(cls, values):  # pylint:disable=no-self-argument
+    @model_validator(mode="after")  # type:ignore[misc, no-untyped-def]
+    def check_secret_or_token_is_present(
+        cls, values
+    ) -> None:  # pylint:disable=no-self-argument # type:ignore[arg-type, misc, no-untyped-def]
         """
         Ensures that either (id+secret) or a bare token are present
         """
@@ -106,7 +110,7 @@ class OAuthTmdsConfig(TmdsConfig):
             )
 
     @field_validator("bearer_token")
-    def validate_bearer_token(cls, value):
+    def validate_bearer_token(cls, value: str) -> str:
         """
         check that the value is a string
         """

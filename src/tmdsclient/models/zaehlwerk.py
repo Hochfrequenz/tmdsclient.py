@@ -18,7 +18,7 @@ class Zaehlwerk(BaseModel):
     bezeichnung: Optional[str] = None
     richtung: Optional[str] = None
     obisKennzahl: str
-    einheit: Optional[Mengeneinheit] = None  # type:ignore[arg-type]
+    einheit: Optional[Mengeneinheit] = None
     schwachlastfaehig: Optional[str] = None
     unterbrechbarkeit: Optional[str] = None
     vorkommastelle: Optional[int] = None

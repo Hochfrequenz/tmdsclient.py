@@ -2,7 +2,7 @@
 Model of the Messlokation object of the TMDS
 """
 
-from typing import Optional
+from typing import Any, Optional
 
 import pydantic
 from bo4e.bo.messlokation import Messlokation as Bo4eMesslokation
@@ -40,6 +40,6 @@ class Messlokation(BaseModel):
 
     # pylint:disable=no-self-argument
     @field_validator("id", mode="before")
-    def validate_id(cls, melo_id):
+    def validate_id(cls, melo_id: str) -> Any:
         remove_prefix = create_id_prefix_validator("Messlokation-", is_guid=False, convert_to_uuid=False)
         return remove_prefix(cls, melo_id)

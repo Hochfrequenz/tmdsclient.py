@@ -71,10 +71,10 @@ class TmdsClient(ABC):
             tld = ".".join(domain_parts[-2:])
         return URL(self._config.server_url.scheme + "://" + tld)
 
-    async def _get_session(self):
+    async def _get_session(self) -> ClientSession:
         raise NotImplementedError("The inheriting class has to implement this with its respective authentication")
 
-    async def close_session(self):
+    async def close_session(self) -> None:
         """
         closes the client session
         """
@@ -194,14 +194,15 @@ class TmdsClient(ABC):
         download all netzverträge from TMDS
         """
 
-        async def generator():
+        async def generator() -> AsyncGenerator[Netzvertrag, None]:
             successfully_downloaded = 0
             for chunk_index, id_chunk in enumerate(chunked(all_ids, chunk_size)):
                 get_tasks = [self.get_netzvertrag_by_id(nv_id) for nv_id in id_chunk]
                 try:
                     _result_chunk = await asyncio.gather(*get_tasks)
                     for nv in _result_chunk:
-                        yield nv
+                        yield nv  # type:ignore[misc]
+                        # this must not be None, because we know the ID exists on server side
                     successfully_downloaded += len(_result_chunk)
                     _log_chunk_success(
                         chunk_size=chunk_size,
@@ -224,7 +225,8 @@ class TmdsClient(ABC):
                         # With a moderate sized chunk_size it should be fine as there are not that many 500 errors.
                         success_in_this_chunk = 0
                         try:
-                            yield await self.get_netzvertrag_by_id(_nv_id)
+                            yield await self.get_netzvertrag_by_id(_nv_id)  # type:ignore[misc]
+                            # it should not be none here, because we know the ID exists, that would be a server error
                             successfully_downloaded += 1
                             success_in_this_chunk += 1
                         except (asyncio.TimeoutError, ClientResponseError) as single_error:
@@ -243,7 +245,8 @@ class TmdsClient(ABC):
                         )
             _logger.info("Successfully downloaded %i Netzvertraege", successfully_downloaded)
 
-        return generator()  # This needs to be called to return an AsyncGenerator
+        return generator()
+        # This needs to be called to return an AsyncGenerator
 
     async def _get_all_netzvertraege_list(self, all_ids: list[uuid.UUID], chunk_size: int) -> list[Netzvertrag]:
         result: list[Netzvertrag] = []
@@ -452,3 +455,6 @@ class OAuthTmdsClient(TmdsClient, _OAuthHttpClient):
             else:
                 _logger.log(5, "reusing aiohttp session")  # log level 5 is half as "loud" logging.DEBUG
             return self._session
+
+
+__all__ = ["TmdsClient", "OAuthTmdsClient", "BasicAuthTmdsClient"]
