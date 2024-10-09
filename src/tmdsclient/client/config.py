@@ -90,9 +90,7 @@ class OAuthTmdsConfig(TmdsConfig):
     """
 
     @model_validator(mode="after")  # type:ignore[misc, no-untyped-def]
-    def check_secret_or_token_is_present(  # pylint:disable=no-self-argument
-        cls, values
-    ) -> None:  # type:ignore[arg-type, misc, no-untyped-def]
+    def check_secret_or_token_is_present(cls, values) -> None:  # pylint:disable=no-self-argument
         """
         Ensures that either (id+secret) or a bare token are present
         """
