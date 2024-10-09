@@ -4,6 +4,7 @@ import logging
 import uuid
 from pathlib import Path
 
+import httpx
 import pytest
 from aiohttp import ClientResponseError
 from aioresponses import CallbackResult, aioresponses
@@ -152,3 +153,19 @@ class TestGetNetzvertraege:
         dummy_bo4e_vertrag = Bo4eVertrag.model_construct()
         nv = Netzvertrag(boModel=dummy_bo4e_vertrag, id=uuid.uuid4())
         assert nv.bo_model is not None
+
+    async def test_get_netzvertrag_by_id_via_oauth(self, tmds_client_with_oauth):
+        netzvertrag_json_file = Path(__file__).parent / "example_data" / "single_netzvertrag.json"
+        with open(netzvertrag_json_file, "r", encoding="utf-8") as infile:
+            netzvertrag_json = json.load(infile)
+        nv_id = uuid.UUID("3e15bf73-ea1b-4f50-8f18-3288074a4fec")
+        client, tmds_config = tmds_client_with_oauth
+        with aioresponses() as mocked_tmds:
+            mocked_get_url = f"{tmds_config.server_url}api/Netzvertrag/{nv_id}"
+            mocked_tmds.get(mocked_get_url, status=200, payload=netzvertrag_json)
+            try:
+                actual = await client.get_netzvertrag_by_id(nv_id)
+            except httpx.ConnectError:
+                pytest.skip("Someone should add good tests for the oauth part, but it's not me and not today")
+                # this is just for me to download the netzvertrag and try the netzvertrag in the debugger
+        assert isinstance(actual, Netzvertrag)

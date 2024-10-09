@@ -281,12 +281,14 @@ class TmdsClient(ABC):
     @overload
     async def get_all_netzvertraege(
         self, as_generator: Literal[False], chunk_size: int = _DEFAULT_CHUNK_SIZE
-    ) -> list[Netzvertrag]: ...
+    ) -> list[Netzvertrag]:
+        ...
 
     @overload
     async def get_all_netzvertraege(
         self, as_generator: Literal[True], chunk_size: int = _DEFAULT_CHUNK_SIZE
-    ) -> AsyncGenerator[Netzvertrag, None]: ...
+    ) -> AsyncGenerator[Netzvertrag, None]:
+        ...
 
     async def get_all_netzvertraege(
         self, as_generator: bool, chunk_size: int = _DEFAULT_CHUNK_SIZE
@@ -385,7 +387,7 @@ class TmdsClient(ABC):
             return updated_zaehler.is_schmutzwasser_relevant == is_waste_water_relevant
 
 
-class BasicAuthBssClient(TmdsClient):
+class BasicAuthTmdsClient(TmdsClient):
     """TMDS client with basic auth"""
 
     def __init__(self, config: BasicAuthTmdsConfig):
