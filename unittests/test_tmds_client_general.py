@@ -1,7 +1,8 @@
 import pytest
 from yarl import URL
 
-from tmdsclient import TmdsClient, TmdsConfig
+from tmdsclient import TmdsClient
+from tmdsclient.client.config import BasicAuthTmdsConfig, OAuthTmdsConfig
 
 
 @pytest.mark.parametrize(
@@ -17,7 +18,14 @@ from tmdsclient import TmdsClient, TmdsConfig
     ],
 )
 def test_get_tld(actual_url: URL, expected_tld: URL):
-    config = TmdsConfig(server_url=actual_url, usr="user", pwd="password")
+    config = BasicAuthTmdsConfig(server_url=actual_url, usr="user", pwd="password")
     client = TmdsClient(config)
     actual = client.get_top_level_domain()
     assert actual == expected_tld
+
+
+def test_oauth_config():
+    with pytest.raises(ValueError):
+        OAuthTmdsConfig(
+            server_url=URL("https://tmds.example.com"), bearer_token="something-which-is-definitely no token"
+        )

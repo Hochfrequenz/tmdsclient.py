@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import uuid
+from abc import ABC
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, Callable, Literal, Optional, overload
 
@@ -10,7 +11,8 @@ from aiohttp import BasicAuth, ClientResponseError, ClientSession, ClientTimeout
 from more_itertools import chunked
 from yarl import URL
 
-from tmdsclient.client.config import TmdsConfig
+from tmdsclient.client.config import BasicAuthTmdsConfig, OAuthTmdsConfig, TmdsConfig
+from tmdsclient.client.oauth import _OAuthHttpClient, token_is_valid
 from tmdsclient.models import AllIdsResponse
 from tmdsclient.models.messlokation import Messlokation
 from tmdsclient.models.netzvertrag import Netzvertrag, _ListOfNetzvertraege
@@ -39,14 +41,13 @@ due to high load
 """
 
 
-class TmdsClient:
+class TmdsClient(ABC):
     """
     an async wrapper around the TMDS API
     """
 
     def __init__(self, config: TmdsConfig):
         self._config = config
-        self._auth = BasicAuth(login=self._config.usr, password=self._config.pwd)
         self._session_lock = asyncio.Lock()
         self._session: Optional[ClientSession] = None
         _logger.info("Instantiated TmdsClient with server_url %s", str(self._config.server_url))
@@ -70,23 +71,8 @@ class TmdsClient:
             tld = ".".join(domain_parts[-2:])
         return URL(self._config.server_url.scheme + "://" + tld)
 
-    async def _get_session(self) -> ClientSession:
-        """
-        returns a client session (that may be reused or newly created)
-        re-using the same (threadsafe) session will be faster than re-creating a new session for every request.
-        see https://docs.aiohttp.org/en/stable/http_request_lifecycle.html#how-to-use-the-clientsession
-        """
-        async with self._session_lock:
-            if self._session is None or self._session.closed:
-                _logger.info("creating new session")
-                self._session = ClientSession(
-                    auth=self._auth,
-                    timeout=ClientTimeout(60),
-                    raise_for_status=True,
-                )
-            else:
-                _logger.log(5, "reusing aiohttp session")  # log level 5 is half as "loud" logging.DEBUG
-            return self._session
+    async def _get_session(self):
+        raise NotImplementedError("The inheriting class has to implement this with its respective authentication")
 
     async def close_session(self):
         """
@@ -397,3 +383,72 @@ class TmdsClient:
             response.raise_for_status()
             updated_zaehler = Zaehler.model_validate_json(await response.json())
             return updated_zaehler.is_schmutzwasser_relevant == is_waste_water_relevant
+
+
+class BasicAuthTmdsClient(TmdsClient):
+    """TMDS client with basic auth"""
+
+    def __init__(self, config: BasicAuthTmdsConfig):
+        """instantiate by providing a valid config"""
+        if not isinstance(config, BasicAuthTmdsConfig):
+            raise ValueError("You must provide a valid config")
+        super().__init__(config)
+        self._auth = BasicAuth(login=config.usr, password=config.pwd)
+
+    async def _get_session(self) -> ClientSession:
+        """
+        returns a client session (that may be reused or newly created)
+        re-using the same (threadsafe) session will be faster than re-creating a new session for every request.
+        see https://docs.aiohttp.org/en/stable/http_request_lifecycle.html#how-to-use-the-clientsession
+        """
+        async with self._session_lock:
+            if self._session is None or self._session.closed:
+                _logger.info("creating new session")
+                self._session = ClientSession(
+                    auth=self._auth,
+                    timeout=ClientTimeout(60),
+                    raise_for_status=True,
+                )
+            else:
+                _logger.log(5, "reusing aiohttp session")  # log level 5 is half as "loud" logging.DEBUG
+            return self._session
+
+
+class OAuthTmdsClient(TmdsClient, _OAuthHttpClient):
+    """TMDS client with OAuth"""
+
+    def __init__(self, config: OAuthTmdsConfig):
+        if not isinstance(config, OAuthTmdsConfig):
+            raise ValueError("You must provide a valid config")
+        super().__init__(config)
+        _OAuthHttpClient.__init__(
+            self,
+            base_url=config.server_url,
+            oauth_client_id=config.client_id,
+            oauth_client_secret=config.client_secret,
+            oauth_token_url=str(config.token_url),
+        )
+        self._oauth_config = config
+        self._bearer_token: str | None = config.bearer_token if config.bearer_token else None
+
+    async def _get_session(self) -> ClientSession:
+        """
+        returns a client session (that may be reused or newly created)
+        re-using the same (threadsafe) session will be faster than re-creating a new session for every request.
+        see https://docs.aiohttp.org/en/stable/http_request_lifecycle.html#how-to-use-the-clientsession
+        """
+        async with self._session_lock:
+            if self._bearer_token is None:
+                self._bearer_token = await self._get_oauth_token()
+            elif not token_is_valid(self._bearer_token):
+                await self.close_session()
+            if self._session is None or self._session.closed:
+                _logger.info("creating new session")
+                self._session = ClientSession(
+                    timeout=ClientTimeout(60),
+                    raise_for_status=True,
+                    headers={"Authorization": f"Bearer {self._bearer_token}"},
+                )
+            else:
+                _logger.log(5, "reusing aiohttp session")  # log level 5 is half as "loud" logging.DEBUG
+            return self._session
