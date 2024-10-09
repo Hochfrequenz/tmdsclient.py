@@ -36,4 +36,4 @@ class Anschlussobjekt(BaseModel):
     is_migrated_from_isu: bool = Field(alias="isMigratedFromIsu", default=False)
     adresse: Optional[Adresse] = Field(alias="adresse", default=None)
     # einheiten: Optional[list[_AnschlussobjektEinheitZeitscheibe]] = None  # type:ignore[valid-type]
-    plattformfaehig: Optional[list[Plattformfaehig]] = None  # type:ignore[valid-type]
+    plattformfaehig: Optional[list[Plattformfaehig]] = None

@@ -18,3 +18,6 @@ class AllIdsResponse(RootModel[dict[_SupportedEntityType, list[_IdPair]]]):
     """
     response of any /allIds endpoint
     """
+
+
+__all__ = ["AllIdsResponse"]

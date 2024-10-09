@@ -3,7 +3,7 @@ Model of the Zaehler object of the TMDS
 """
 
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from bo4e.enum.sparte import Sparte
@@ -42,7 +42,7 @@ class Zaehler(BaseModel):
 
     # pylint:disable=no-self-argument
     @field_validator("id", mode="before")
-    def validate_id(cls, zaehler_id):
+    def validate_id(cls, zaehler_id: str) -> Any:
         remove_prefix = create_id_prefix_validator("Zaehler-", is_guid=True, convert_to_uuid=True)
         return remove_prefix(cls, zaehler_id)
 

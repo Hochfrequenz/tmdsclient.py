@@ -5,7 +5,7 @@ oauth stuff
 import asyncio
 import logging
 from abc import ABC
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Optional
 
 import jwt
@@ -15,7 +15,7 @@ from yarl import URL
 _logger = logging.getLogger(__name__)
 
 
-def token_is_valid(token) -> bool:
+def token_is_valid(token: str) -> bool:
     """
     returns true iff the token expiration date is far enough in the future. By "enough" I mean:
     more than 1 minute (because the clients' request using the token shouldn't take longer than that)
@@ -25,7 +25,7 @@ def token_is_valid(token) -> bool:
         expiration_timestamp = decoded_token.get("exp")
         expiration_datetime = datetime.fromtimestamp(expiration_timestamp)
         _logger.debug("Token is valid until %s", expiration_datetime.isoformat())
-        current_datetime = datetime.utcnow()
+        current_datetime = datetime.now(UTC)
         token_is_valid_one_minute_into_the_future = expiration_datetime > current_datetime + timedelta(minutes=1)
         return token_is_valid_one_minute_into_the_future
     except jwt.ExpiredSignatureError:
@@ -41,7 +41,7 @@ class _ValidateTokenMixin:  # pylint:disable=too-few-public-methods
     Mixin for classes which need to validate tokens
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._session_lock = asyncio.Lock()
 
 
@@ -50,7 +50,9 @@ class _OAuthHttpClient(_ValidateTokenMixin, ABC):  # pylint:disable=too-few-publ
     An abstract oauth based HTTP client
     """
 
-    def __init__(self, base_url: URL, oauth_client_id: str, oauth_client_secret: str, oauth_token_url: URL | str):
+    def __init__(
+        self, base_url: URL, oauth_client_id: str, oauth_client_secret: str, oauth_token_url: URL | str
+    ) -> None:
         """
         instantiate by providing the basic information which is required to connect to the service.
         :param base_url: e.g. "https://transformerbee.utilibee.io/"
@@ -93,3 +95,6 @@ class _OAuthHttpClient(_ValidateTokenMixin, ABC):  # pylint:disable=too-few-publ
             else:
                 _logger.debug("Token is still valid, reusing it")
         return self._token
+
+
+__all__ = ["token_is_valid"]

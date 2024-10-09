@@ -31,7 +31,7 @@ class Zeitscheibe(BaseModel):
 
     # pylint:disable=no-self-argument
     @field_validator("bis", mode="before")
-    def drop_too_many_second_fractions(cls, datetime_string):
+    def drop_too_many_second_fractions(cls, datetime_string: str) -> str:
         """
         prevents 'Input should be a valid datetime, second fraction value is more than 6 digits long'
         # https://github.com/pydantic/pydantic/discussions/6411
@@ -42,11 +42,10 @@ class Zeitscheibe(BaseModel):
 
 
 # the test show that it works. fix mypy later™
-# type:ignore[valid-type]
 def create_zeitscheibe_class(
     entity_validator: Callable[[Any, str], Any],
     owner_validator: Callable[[Any, str], Any],
-    entity_type: Optional[Type] = None,
+    entity_type: Optional[Type] = None,  # type:ignore[type-arg]
 ) -> Type[Zeitscheibe]:
     """
     Create a Zeitscheibe class using the given validators; If entity_type is set, use it as type for the entity itself.
@@ -64,12 +63,12 @@ def create_zeitscheibe_class(
 
         # pylint:disable=no-self-argument
         @field_validator("entity_id")
-        def validate_entity_id(cls, entity_id):
+        def validate_entity_id(cls, entity_id: str) -> Any:
             return entity_validator(cls, entity_id)
 
         # pylint:disable=no-self-argument
         @field_validator("owner_id")
-        def validate_owner_id(cls, owner_id):
+        def validate_owner_id(cls, owner_id: str) -> Any:
             return owner_validator(cls, owner_id)
 
     if entity_type is None:
