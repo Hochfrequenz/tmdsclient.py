@@ -144,11 +144,11 @@ class TestGetNetzvertraege:
         assert actual.bo_model.vertragstatus == Vertragsstatus.STORNIERT
 
     def test_netzvertrag_can_be_instantiated_using_field_names(self):
-        dummy_bo4e_vertrag = Bo4eVertrag.construct()
+        dummy_bo4e_vertrag = Bo4eVertrag.model_construct()
         nv = Netzvertrag(bo_model=dummy_bo4e_vertrag, id=uuid.uuid4())
         assert nv.bo_model is not None
 
     def test_netzvertrag_can_be_instantiated_using_alias(self):
-        dummy_bo4e_vertrag = Bo4eVertrag.construct()
+        dummy_bo4e_vertrag = Bo4eVertrag.model_construct()
         nv = Netzvertrag(boModel=dummy_bo4e_vertrag, id=uuid.uuid4())
         assert nv.bo_model is not None
