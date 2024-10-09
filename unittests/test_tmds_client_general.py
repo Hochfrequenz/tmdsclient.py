@@ -1,8 +1,8 @@
 import pytest
 from yarl import URL
 
-from tmdsclient import TmdsClient, TmdsConfig
-from tmdsclient.client.config import OAuthTmdsConfig
+from tmdsclient import TmdsClient
+from tmdsclient.client.config import OAuthTmdsConfig, BasicAuthTmdsConfig
 
 
 @pytest.mark.parametrize(
@@ -18,7 +18,7 @@ from tmdsclient.client.config import OAuthTmdsConfig
     ],
 )
 def test_get_tld(actual_url: URL, expected_tld: URL):
-    config = TmdsConfig(server_url=actual_url, usr="user", pwd="password")
+    config = BasicAuthTmdsConfig(server_url=actual_url, usr="user", pwd="password")
     client = TmdsClient(config)
     actual = client.get_top_level_domain()
     assert actual == expected_tld
