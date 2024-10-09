@@ -18,7 +18,7 @@ classifiers = [
 ]
 dependencies = [
     "pydantic>=2.0.0",
-    "aiohttp[speedups]>=3.9.5",
+    "aiohttp[speedups]>=3.9.10",
     "jsonpatch",
     "more_itertools",
     "bo4e>=202401.1.1",
