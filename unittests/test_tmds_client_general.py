@@ -2,7 +2,7 @@ import pytest
 from yarl import URL
 
 from tmdsclient import TmdsClient
-from tmdsclient.client.config import OAuthTmdsConfig, BasicAuthTmdsConfig
+from tmdsclient.client.config import BasicAuthTmdsConfig, OAuthTmdsConfig
 
 
 @pytest.mark.parametrize(
