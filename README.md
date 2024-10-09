@@ -22,14 +22,14 @@ pip install tmdsclient
 ## Usage
 ```python
 from yarl import URL
-from tmdsclient import TmdsClient, TmdsConfig
+from tmdsclient import BasicAuthTmdsClient, BasicAuthTmdsConfig
 
-tmds_config = TmdsConfig(
+tmds_config = BasicAuthTmdsConfig(
     server_url=URL("https://my-tmds.xtk-test.org/"),
     usr="my-usr",
     pwd="my-pwd",
 )
-client = TmdsClient(tmds_config)
+client = BasicAuthTmdsClient(tmds_config)
 netzvertrage = await client.get_netzvertraege_for_melo("DE1234567890123456789012345678901")
 ```
 
