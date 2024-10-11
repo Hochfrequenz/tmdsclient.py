@@ -9,6 +9,7 @@ from typing import AsyncGenerator, Callable, Literal, Optional, overload
 
 from aiohttp import BasicAuth, ClientResponseError, ClientSession, ClientTimeout
 from more_itertools import chunked
+from pydantic import AwareDatetime
 from yarl import URL
 
 from tmdsclient.client.config import BasicAuthTmdsConfig, OAuthTmdsConfig, TmdsConfig
@@ -284,12 +285,14 @@ class TmdsClient(ABC):
     @overload
     async def get_all_netzvertraege(
         self, as_generator: Literal[False], chunk_size: int = _DEFAULT_CHUNK_SIZE
-    ) -> list[Netzvertrag]: ...
+    ) -> list[Netzvertrag]:
+        ...
 
     @overload
     async def get_all_netzvertraege(
         self, as_generator: Literal[True], chunk_size: int = _DEFAULT_CHUNK_SIZE
-    ) -> AsyncGenerator[Netzvertrag, None]: ...
+    ) -> AsyncGenerator[Netzvertrag, None]:
+        ...
 
     async def get_all_netzvertraege(
         self, as_generator: bool, chunk_size: int = _DEFAULT_CHUNK_SIZE
@@ -304,7 +307,10 @@ class TmdsClient(ABC):
         return await self._get_all_netzvertraege_list(all_ids, chunk_size)
 
     async def update_netzvertrag(
-        self, netzvertrag_id: uuid.UUID, changes: list[Callable[[Netzvertrag], None]]
+        self,
+        netzvertrag_id: uuid.UUID,
+        changes: list[Callable[[Netzvertrag], None]],
+        keydate: AwareDatetime | None = None,
     ) -> Netzvertrag:
         """
         patch the given netzvertrag using the changes
@@ -315,6 +321,8 @@ class TmdsClient(ABC):
             raise ValueError(f"Netzvertrag with id {netzvertrag_id} not found")
         patch_document = build_json_patch_document(netzvertrag, changes)
         request_url = self._config.server_url / "api" / "v2" / "Netzvertrag" / str(netzvertrag_id)
+        if keydate is not None:  # if it's None it defaults to now(UTC) on serverside anyway
+            request_url = request_url % {"aenderungsDatum": keydate.isoformat()}
         request_uuid = uuid.uuid4()
         _logger.debug("[%s] patching %s with body %s", str(request_uuid), request_url, str(patch_document))
         async with session.patch(
