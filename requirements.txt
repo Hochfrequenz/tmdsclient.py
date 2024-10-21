@@ -55,7 +55,7 @@ multidict==6.0.5
     #   yarl
 propcache==0.2.0
     # via yarl
-pydantic==2.7.1
+pydantic==2.9.2
     # via
     #   bo4e
     #   tmdsclient (pyproject.toml)
