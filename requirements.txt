@@ -73,5 +73,5 @@ typing-extensions==4.12.2
     # via
     #   pydantic
     #   pydantic-core
-yarl==1.14.0
+yarl==1.15.5
     # via aiohttp
