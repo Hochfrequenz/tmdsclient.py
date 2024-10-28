@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from aioresponses import CallbackResult, aioresponses
+from bo4e import Sparte
 from jsonpatch import JsonPatch  # type:ignore[import-untyped]
 
 from tmdsclient.models.marktlokation import Marktlokation
@@ -183,3 +184,28 @@ class TestTmdsMarktlokation:
         assert len(actual.bo_model.netznutzungsabrechnungsdaten) == len(
             {x.artikel_id for x in actual.bo_model.netznutzungsabrechnungsdaten}
         )
+
+    async def test_update_malo_bare_json_atpch(self, tmds_client_with_default_auth) -> None:
+        malo_json = _example_malo_json.copy()
+        malo_id = malo_json["id"]
+        client, tmds_config = tmds_client_with_default_auth
+
+        def patch_endpoint_callback(url, **kwargs):  # pylint:disable=unused-argument
+            request_body = kwargs["json"]
+            json_patch = JsonPatch(request_body)
+            modified_netzvertrag_json = malo_json.copy()
+            result = json_patch.apply(modified_netzvertrag_json)
+            return CallbackResult(status=200, payload=result)
+
+        with aioresponses() as mocked_tmds:
+            mocked_get_url = f"{tmds_config.server_url}api/Marktlokation/{malo_id}"
+            mocked_tmds.get(mocked_get_url, status=200, payload=malo_json)
+            # https://tmds.inv/api/v2/Marktlokation/88223254274
+            mocked_patch_url = f"{tmds_config.server_url}api/v2/Marktlokation/{malo_id}"
+            mocked_tmds.patch(mocked_patch_url, callback=patch_endpoint_callback)
+            actual = await client.update_marktlokation(
+                malo_id, [{"path": "/boModel/sparte", "op": "replace", "value": "GAS"}]
+            )
+        assert isinstance(actual, Marktlokation)
+        assert actual.bo_model is not None
+        assert actual.bo_model.sparte == Sparte.GAS
