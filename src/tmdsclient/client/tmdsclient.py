@@ -370,6 +370,25 @@ class TmdsClient(ABC):
             result = Zaehler.model_validate(response_json)
         return result
 
+    async def get_marktlokation(self, malo_id: str) -> Marktlokation | None:
+        """
+        provide a MaLo-ID, get the matching MaLo in return (or None, if 404)
+        """
+        session = await self._get_session()
+        request_url = self._config.server_url / "api" / "Marktlokation" / malo_id
+        request_uuid = uuid.uuid4()
+        _logger.debug("[%s] requesting %s", str(request_uuid), request_url)
+        async with session.get(request_url) as response:
+            try:
+                if response.status == 404:
+                    return None
+                response.raise_for_status()
+            finally:
+                _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
+            response_json = await response.json()
+            result = Marktlokation.model_validate(response_json)
+        return result
+
     async def set_schmutzwasser_relevanz(self, zaehler_id: uuid.UUID, is_waste_water_relevant: bool) -> bool:
         """
         Set the waste water relevancy of a Zaehler.
