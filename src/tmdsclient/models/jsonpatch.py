@@ -6,6 +6,8 @@ Operations: TypeAlias = Literal["add", "remove", "replace", "move", "copy", "tes
 
 
 class Operation(TypedDict):
+    """a single operation inside a JsonPatch"""
+
     op: Operations
     value: Any
     path: str

@@ -350,10 +350,11 @@ class TmdsClient(ABC):
             raise ValueError(f"Marktlokation with id '{malo_id}' not found")
         patch_document: jsonpatch.JsonPatch
         if isinstance(changes, list) and len(changes) > 0 and not isinstance(changes[0], dict):
-            patch_document = build_json_patch_document(marktlokation, changes)
+            # we assume that "not isinstance(changes[0], dict)" == isinstance(changes[0], Callable)
+            patch_document = build_json_patch_document(marktlokation, changes)  # type:ignore[arg-type]
         else:
             # assume it's the patch itself
-            patch = jsonpatch.JsonPatch(changes)
+            patch_document = jsonpatch.JsonPatch(changes)
         request_url = self._config.server_url / "api" / "v2" / "Marktlokation" / str(malo_id)
         if keydate is not None:  # if it's None it defaults to now(UTC) on serverside anyway
             request_url = request_url % {"aenderungsDatum": keydate.isoformat()}
