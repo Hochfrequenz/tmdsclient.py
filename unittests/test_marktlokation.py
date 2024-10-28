@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from aioresponses import CallbackResult, aioresponses
-from jsonpatch import JsonPatch # type:ignore[import-untyped]
+from jsonpatch import JsonPatch  # type:ignore[import-untyped]
 
 from tmdsclient.models.marktlokation import Marktlokation
 
@@ -135,12 +135,14 @@ class TestTmdsMarktlokation:
     async def test_update_malo(self, tmds_client_with_default_auth) -> None:
         malo_json = _example_malo_json.copy()
         malo_id = malo_json["id"]
-        def _create_duplicate_nna(_malo_json:dict[str,Any])->None:
+
+        def _create_duplicate_nna(_malo_json: dict[str, Any]) -> None:
             _malo_json["boModel"]["netznutzungsabrechnungsdaten"].append(
                 _malo_json["boModel"]["netznutzungsabrechnungsdaten"][1].copy()
             )
             _malo_json["boModel"]["netznutzungsabrechnungsdaten"][-1]["guid"] = str(uuid.uuid4())
             _malo_json["boModel"]["netznutzungsabrechnungsdaten"][-1]["timestamp"] = datetime.now(UTC).isoformat()
+
         _create_duplicate_nna(malo_json)
         client, tmds_config = tmds_client_with_default_auth
 
@@ -153,7 +155,8 @@ class TestTmdsMarktlokation:
                 if any(
                     other_nna
                     for other_nna in malo.bo_model.netznutzungsabrechnungsdaten
-                    if other_nna.artikel_id == original_nna.artikel_id and (other_nna.timestamp or datetime.now(UTC)) > (original_nna.timestamp or datetime.now(UTC))
+                    if other_nna.artikel_id == original_nna.artikel_id
+                    and (other_nna.timestamp or datetime.now(UTC)) > (original_nna.timestamp or datetime.now(UTC))
                 ):
                     indexes_to_remove.append(original_index)
             indexes_to_remove.sort(reverse=True)
