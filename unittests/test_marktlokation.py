@@ -1,8 +1,9 @@
 import uuid
 from datetime import UTC, datetime
+from typing import Any
 
 from aioresponses import CallbackResult, aioresponses
-from jsonpatch import JsonPatch
+from jsonpatch import JsonPatch # type:ignore[import-untyped]
 
 from tmdsclient.models.marktlokation import Marktlokation
 
@@ -134,12 +135,13 @@ class TestTmdsMarktlokation:
     async def test_update_malo(self, tmds_client_with_default_auth) -> None:
         malo_json = _example_malo_json.copy()
         malo_id = malo_json["id"]
-        malo_json["boModel"]["netznutzungsabrechnungsdaten"].append(
-            malo_json["boModel"]["netznutzungsabrechnungsdaten"][1].copy()
-        )
-        malo_json["boModel"]["netznutzungsabrechnungsdaten"][-1]["guid"] = str(uuid.uuid4())
-        malo_json["boModel"]["netznutzungsabrechnungsdaten"][-1]["timestamp"] = datetime.now(UTC).isoformat()
-
+        def _create_duplicate_nna(_malo_json:dict[str,Any])->None:
+            _malo_json["boModel"]["netznutzungsabrechnungsdaten"].append(
+                _malo_json["boModel"]["netznutzungsabrechnungsdaten"][1].copy()
+            )
+            _malo_json["boModel"]["netznutzungsabrechnungsdaten"][-1]["guid"] = str(uuid.uuid4())
+            _malo_json["boModel"]["netznutzungsabrechnungsdaten"][-1]["timestamp"] = datetime.now(UTC).isoformat()
+        _create_duplicate_nna(malo_json)
         client, tmds_config = tmds_client_with_default_auth
 
         def remove_duplicate_nna(malo: Marktlokation) -> None:
@@ -151,7 +153,7 @@ class TestTmdsMarktlokation:
                 if any(
                     other_nna
                     for other_nna in malo.bo_model.netznutzungsabrechnungsdaten
-                    if other_nna.artikel_id == original_nna.artikel_id and other_nna.timestamp > original_nna.timestamp
+                    if other_nna.artikel_id == original_nna.artikel_id and (other_nna.timestamp or datetime.now(UTC)) > (original_nna.timestamp or datetime.now(UTC))
                 ):
                     indexes_to_remove.append(original_index)
             indexes_to_remove.sort(reverse=True)
@@ -173,6 +175,8 @@ class TestTmdsMarktlokation:
             mocked_tmds.patch(mocked_patch_url, callback=patch_endpoint_callback)
             actual = await client.update_marktlokation(malo_id, [remove_duplicate_nna])
         assert isinstance(actual, Marktlokation)
+        assert actual.bo_model is not None
+        assert actual.bo_model.netznutzungsabrechnungsdaten is not None
         assert len(actual.bo_model.netznutzungsabrechnungsdaten) == len(
             {x.artikel_id for x in actual.bo_model.netznutzungsabrechnungsdaten}
         )
