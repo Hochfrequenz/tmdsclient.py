@@ -15,6 +15,7 @@ from yarl import URL
 from tmdsclient.client.config import BasicAuthTmdsConfig, OAuthTmdsConfig, TmdsConfig
 from tmdsclient.client.oauth import _OAuthHttpClient, token_is_valid
 from tmdsclient.models import AllIdsResponse
+from tmdsclient.models.marktlokation import Marktlokation
 from tmdsclient.models.messlokation import Messlokation
 from tmdsclient.models.netzvertrag import Netzvertrag, _ListOfNetzvertraege
 from tmdsclient.models.patches import build_json_patch_document

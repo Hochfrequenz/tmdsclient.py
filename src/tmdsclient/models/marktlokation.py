@@ -2,7 +2,6 @@
 Model of the Marktlokation object of the TMDS
 """
 
-from email.policy import default
 from typing import Any
 from uuid import UUID
 
@@ -43,5 +42,6 @@ class Marktlokation(BaseModel):
     # pylint:disable=no-self-argument
     @field_validator("id", mode="before")
     def validate_id(cls, melo_id: str) -> Any:
+        """removes the optional 'Marktlokation-' prefix"""
         remove_prefix = create_id_prefix_validator("Marktlokation-", is_guid=False, convert_to_uuid=False)
         return remove_prefix(cls, melo_id)
