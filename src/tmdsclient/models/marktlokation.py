@@ -2,6 +2,7 @@
 Model of the Marktlokation object of the TMDS
 """
 
+from enum import StrEnum
 from typing import Any
 from uuid import UUID
 
@@ -22,6 +23,17 @@ class _Netznutzungsabrechnungsdaten(BaseModel):
     artikel_id_typ: str | None = Field(default=None, alias="artikelIdTyp", serialization_alias="artikelIdTyp")
 
 
+class Bilanzierungsmethode(StrEnum):
+    """similar to the official Bilanzierungsmethode but with IMS"""
+
+    RLM = "RLM"  #: Registrierende Leistungsmessung
+    SLP = "SLP"  #: Standard Lastprofil
+    TLP_GEMEINSAM = "TLP_GEMEINSAM"  #: TLP gemeinsame Messung
+    TLP_GETRENNT = "TLP_GETRENNT"  #: TLP getrennte Messung
+    PAUSCHAL = "PAUSCHAL"  #: Pauschale Betrachtung (Band)
+    IMS = "IMS"  # see https://github.com/bo4e/BO4E-python/pull/921
+
+
 class Bo4eMarktlokationWithNetznutzungsabrechnungsdaten(Bo4eMarktlokation):
     """
     similar to the bo4e marktlokation but with a list of Netznutzungsabrechnungsdaten
@@ -29,6 +41,7 @@ class Bo4eMarktlokationWithNetznutzungsabrechnungsdaten(Bo4eMarktlokation):
 
     model_config = ConfigDict(extra="allow", populate_by_name=True)
     netznutzungsabrechnungsdaten: list[_Netznutzungsabrechnungsdaten] | None = Field(default=None)
+    bilanzierungsmethode: Bilanzierungsmethode # type:ignore[assignment]
 
 
 class Marktlokation(BaseModel):
