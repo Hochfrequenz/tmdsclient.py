@@ -148,7 +148,7 @@ class TestTmdsMarktlokation:
                 return
             indexes_to_remove: list[int] = []
             for original_index, original_nna in enumerate(malo.bo_model.netznutzungsabrechnungsdaten):
-                if any( 
+                if any(
                     other_nna
                     for other_nna in malo.bo_model.netznutzungsabrechnungsdaten
                     if other_nna.artikel_id == original_nna.artikel_id and other_nna.timestamp > original_nna.timestamp
