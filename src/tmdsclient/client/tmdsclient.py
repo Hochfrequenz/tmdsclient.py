@@ -7,6 +7,7 @@ from abc import ABC
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, Callable, Literal, Optional, overload
 
+import jsonpatch  # type:ignore[import-untyped]
 from aiohttp import BasicAuth, ClientResponseError, ClientSession, ClientTimeout
 from more_itertools import chunked
 from pydantic import AwareDatetime
@@ -15,6 +16,7 @@ from yarl import URL
 from tmdsclient.client.config import BasicAuthTmdsConfig, OAuthTmdsConfig, TmdsConfig
 from tmdsclient.client.oauth import _OAuthHttpClient, token_is_valid
 from tmdsclient.models import AllIdsResponse
+from tmdsclient.models.jsonpatch import JsonPatch
 from tmdsclient.models.marktlokation import Marktlokation
 from tmdsclient.models.messlokation import Messlokation
 from tmdsclient.models.netzvertrag import Netzvertrag, _ListOfNetzvertraege
@@ -336,7 +338,7 @@ class TmdsClient(ABC):
     async def update_marktlokation(
         self,
         malo_id: str,
-        changes: list[Callable[[Marktlokation], None]],
+        changes: list[Callable[[Marktlokation], None]] | JsonPatch,
         keydate: AwareDatetime | None = None,
     ) -> Marktlokation:
         """
@@ -346,7 +348,13 @@ class TmdsClient(ABC):
         marktlokation = await self.get_marktlokation(malo_id)
         if marktlokation is None:
             raise ValueError(f"Marktlokation with id '{malo_id}' not found")
-        patch_document = build_json_patch_document(marktlokation, changes)
+        patch_document: jsonpatch.JsonPatch
+        if isinstance(changes, list) and len(changes) > 0 and not isinstance(changes[0], dict):
+            # we assume that "not isinstance(changes[0], dict)" == isinstance(changes[0], Callable)
+            patch_document = build_json_patch_document(marktlokation, changes)  # type:ignore[arg-type]
+        else:
+            # assume it's the patch itself
+            patch_document = jsonpatch.JsonPatch(changes)
         request_url = self._config.server_url / "api" / "v2" / "Marktlokation" / str(malo_id)
         if keydate is not None:  # if it's None it defaults to now(UTC) on serverside anyway
             request_url = request_url % {"aenderungsDatum": keydate.isoformat()}
