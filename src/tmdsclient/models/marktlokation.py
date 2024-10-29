@@ -41,7 +41,7 @@ class Bo4eMarktlokationWithNetznutzungsabrechnungsdaten(Bo4eMarktlokation):
 
     model_config = ConfigDict(extra="allow", populate_by_name=True)
     netznutzungsabrechnungsdaten: list[_Netznutzungsabrechnungsdaten] | None = Field(default=None)
-    bilanzierungsmethode: Bilanzierungsmethode  # type:ignore[assignment]
+    bilanzierungsmethode: Bilanzierungsmethode | None = None  # type:ignore[assignment]
 
 
 class Marktlokation(BaseModel):
