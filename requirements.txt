@@ -63,7 +63,7 @@ pydantic-core==2.18.2
     # via pydantic
 pyhumps==3.8.0
     # via bo4e
-pyjwt==2.9.0
+pyjwt==2.10.0
     # via tmdsclient (pyproject.toml)
 sniffio==1.3.1
     # via
