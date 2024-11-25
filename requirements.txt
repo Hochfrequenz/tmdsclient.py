@@ -4,11 +4,11 @@
 #
 #    pip-compile pyproject.toml
 #
-aioauth-client==0.28.1
+aioauth-client==0.29.0
     # via tmdsclient (pyproject.toml)
 aiohappyeyeballs==2.4.3
     # via aiohttp
-aiohttp[speedups]==3.10.10
+aiohttp[speedups]==3.11.7
     # via tmdsclient (pyproject.toml)
 aiosignal==1.3.1
     # via aiohttp
@@ -26,13 +26,13 @@ certifi==2024.8.30
     # via
     #   httpcore
     #   httpx
-frozenlist==1.4.1
+frozenlist==1.5.0
     # via
     #   aiohttp
     #   aiosignal
 h11==0.14.0
     # via httpcore
-httpcore==1.0.6
+httpcore==1.0.7
     # via httpx
 httpx==0.27.2
     # via aioauth-client
@@ -49,7 +49,7 @@ jsonpointer==3.0.0
     # via jsonpatch
 more-itertools==10.5.0
     # via tmdsclient (pyproject.toml)
-multidict==6.0.5
+multidict==6.1.0
     # via
     #   aiohttp
     #   yarl
@@ -63,7 +63,7 @@ pydantic-core==2.18.2
     # via pydantic
 pyhumps==3.8.0
     # via bo4e
-pyjwt==2.9.0
+pyjwt==2.10.0
     # via tmdsclient (pyproject.toml)
 sniffio==1.3.1
     # via
@@ -73,5 +73,5 @@ typing-extensions==4.12.2
     # via
     #   pydantic
     #   pydantic-core
-yarl==1.16.0
+yarl==1.17.2
     # via aiohttp

@@ -7,6 +7,7 @@ from abc import ABC
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, Callable, Literal, Optional, overload
 
+import jsonpatch  # type:ignore[import-untyped]
 from aiohttp import BasicAuth, ClientResponseError, ClientSession, ClientTimeout
 from more_itertools import chunked
 from pydantic import AwareDatetime
@@ -15,6 +16,8 @@ from yarl import URL
 from tmdsclient.client.config import BasicAuthTmdsConfig, OAuthTmdsConfig, TmdsConfig
 from tmdsclient.client.oauth import _OAuthHttpClient, token_is_valid
 from tmdsclient.models import AllIdsResponse
+from tmdsclient.models.jsonpatch import JsonPatch
+from tmdsclient.models.marktlokation import Marktlokation
 from tmdsclient.models.messlokation import Messlokation
 from tmdsclient.models.netzvertrag import Netzvertrag, _ListOfNetzvertraege
 from tmdsclient.models.patches import build_json_patch_document
@@ -332,6 +335,40 @@ class TmdsClient(ABC):
             result = Netzvertrag.model_validate(response_json)
         return result
 
+    async def update_marktlokation(
+        self,
+        malo_id: str,
+        changes: list[Callable[[Marktlokation], None]] | JsonPatch,
+        keydate: AwareDatetime | None = None,
+    ) -> Marktlokation:
+        """
+        patch the given marktlokation using the changes
+        """
+        session = await self._get_session()
+        marktlokation = await self.get_marktlokation(malo_id)
+        if marktlokation is None:
+            raise ValueError(f"Marktlokation with id '{malo_id}' not found")
+        patch_document: jsonpatch.JsonPatch
+        if isinstance(changes, list) and len(changes) > 0 and not isinstance(changes[0], dict):
+            # we assume that "not isinstance(changes[0], dict)" == isinstance(changes[0], Callable)
+            patch_document = build_json_patch_document(marktlokation, changes)  # type:ignore[arg-type]
+        else:
+            # assume it's the patch itself
+            patch_document = jsonpatch.JsonPatch(changes)
+        request_url = self._config.server_url / "api" / "v2" / "Marktlokation" / str(malo_id)
+        if keydate is not None:  # if it's None it defaults to now(UTC) on serverside anyway
+            request_url = request_url % {"aenderungsDatum": keydate.isoformat()}
+        request_uuid = uuid.uuid4()
+        _logger.debug("[%s] patching %s with body %s", str(request_uuid), request_url, str(patch_document))
+        async with session.patch(
+            request_url, json=patch_document.patch, headers={"Content-Type": "application/json-patch+json"}
+        ) as response:
+            response.raise_for_status()
+            _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
+            response_json = await response.json()
+            result = Marktlokation.model_validate(response_json)
+        return result
+
     async def get_messlokation(self, messlokation_id: str) -> Messlokation | None:
         """
         provide a Messlokation-ID, get the matching MeLo in return (or None, if 404)
@@ -368,6 +405,25 @@ class TmdsClient(ABC):
                 _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
             response_json = await response.json()
             result = Zaehler.model_validate(response_json)
+        return result
+
+    async def get_marktlokation(self, malo_id: str) -> Marktlokation | None:
+        """
+        provide a MaLo-ID, get the matching MaLo in return (or None, if 404)
+        """
+        session = await self._get_session()
+        request_url = self._config.server_url / "api" / "Marktlokation" / malo_id
+        request_uuid = uuid.uuid4()
+        _logger.debug("[%s] requesting %s", str(request_uuid), request_url)
+        async with session.get(request_url) as response:
+            try:
+                if response.status == 404:
+                    return None
+                response.raise_for_status()
+            finally:
+                _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
+            response_json = await response.json()
+            result = Marktlokation.model_validate(response_json)
         return result
 
     async def set_schmutzwasser_relevanz(self, zaehler_id: uuid.UUID, is_waste_water_relevant: bool) -> bool:
