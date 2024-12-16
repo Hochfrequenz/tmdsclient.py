@@ -37,7 +37,7 @@ formatting = [
 ]
 linting = [
     "pylint==3.3.2",
-    "pylint-pydantic==0.3.3"
+    "pylint-pydantic==0.3.4"
 ]
 packaging = [
     "build==1.2.2.post1",
