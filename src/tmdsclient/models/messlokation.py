@@ -20,7 +20,7 @@ _ZeitscheibeMeloZaehler = create_zeitscheibe_class(
 
 
 # pylint:disable=missing-function-docstring
-class Bo4eMeLoWithoutIdValidation(Bo4eMesslokation):
+class Bo4eMeLoWithoutIdValidation(Bo4eMesslokation):  # type:ignore[override]
     """
     Similar to bo4e messlokation but with no regex validation on the messlokations_id.
     The reason is that the IS-U water melo IDs do not match the regex. 🙄
