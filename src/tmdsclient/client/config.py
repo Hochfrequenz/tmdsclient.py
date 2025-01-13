@@ -89,7 +89,7 @@ class OAuthTmdsConfig(TmdsConfig):
     This is useful when you have ways to get a token but not a client id and secret.
     """
 
-    @model_validator(mode="after")  # type:ignore[misc, no-untyped-def]
+    @model_validator(mode="after")
     def check_secret_or_token_is_present(self) -> Self:  # pylint:disable=no-self-argument
         """
         Ensures that either (id+secret) or a bare token are present
