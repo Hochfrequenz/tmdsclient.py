@@ -34,7 +34,7 @@ class TmdsConfig(BaseModel):
             raise ValueError("Invalid URL type")
         if len(value.parts) > 2:
             raise ValueError("You must provide a base_url without any parts, e.g. https://techmasterdata.xtk-prod.de/")
-        return value
+        return URL(value)
 
 
 class BasicAuthTmdsConfig(TmdsConfig):

@@ -1,7 +1,7 @@
 from typing import AsyncGenerator
 
 import pytest
-from pydantic_core import Url
+from pydantic import HttpUrl
 from yarl import URL
 
 from tmdsclient import TmdsClient, TmdsConfig
@@ -37,7 +37,7 @@ async def tmds_client_with_oauth() -> AsyncGenerator[tuple[TmdsClient, TmdsConfi
         server_url=URL("https://techmasterdata.invalid.de/"),
         client_id="my-client-id",
         client_secret="my-client-secret",
-        token_url=Url("https://validate-my-token.inv"),
+        token_url=HttpUrl("https://validate-my-token.inv"),
     )
     client = OAuthTmdsClient(tmds_config)
     yield client, tmds_config
