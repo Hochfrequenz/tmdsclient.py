@@ -30,31 +30,31 @@ dynamic = ["readme", "version"]
 
 [project.optional-dependencies]
 coverage = [
-    "coverage==7.6.8"
+    "coverage==7.6.10"
 ]
 formatting = [
     "black==24.10.0",
     "isort==5.13.2"
 ]
 linting = [
-    "pylint==3.3.1",
-    "pylint-pydantic==0.3.2"
+    "pylint==3.3.3",
+    "pylint-pydantic==0.3.5"
 ]
 packaging = [
     "build==1.2.2.post1",
-    "twine==5.1.1"
+    "twine==6.0.1"
 ]
 spellcheck = [
     "codespell==2.3.0"
 ]
 tests = [
     "aioresponses==0.7.7",
-    "pytest==8.3.3",
-    "pytest-asyncio==0.24.0"
+    "pytest==8.3.4",
+    "pytest-asyncio==0.25.2"
 ]
 type_check = [
-    "mypy[pydantic]==1.13.0",
-    "types-pytz==2024.2.0.20241003"
+    "mypy[pydantic]==1.14.1",
+    "types-pytz==2024.2.0.20241221"
 ]
 
 [project.urls]
