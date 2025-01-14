@@ -113,14 +113,12 @@ class TmdsClient(ABC):
         await asyncio.sleep(60)  # slow down. slow down, at least in this thread
         return False
 
-    async def get_netzvertraege_for_melo(self, melo_id: str) -> list[Netzvertrag]:
-        """
-        provide a melo id, e.g. 'DE1234567890123456789012345678901' and get the corresponding netzvertrag
-        """
-        if not melo_id:
-            raise ValueError("You must not provide an empty melo_id")
+    async def get_netzvertraege_for_query_params(self, query_params: dict[str, str]) -> list[Netzvertrag]:
+        """provide a list of query parameters that are directly passed on to the find endpoint"""
+        if not any(query_params) or not any(str(x).strip() != "" for x in query_params.values()):
+            raise ValueError("At least one query parameter must be provided")
         session = await self._get_session()
-        request_url = self._config.server_url / "api" / "Netzvertrag" / "find" % {"messlokation": melo_id}
+        request_url = self._config.server_url / "api" / "Netzvertrag" / "find" % query_params
         request_uuid = uuid.uuid4()
         _logger.debug("[%s] requesting %s", str(request_uuid), request_url)
         async with session.get(request_url) as response:
@@ -129,6 +127,22 @@ class TmdsClient(ABC):
             response_json = await response.json()
             _list_of_netzvertraege = _ListOfNetzvertraege.model_validate(response_json)
         return _list_of_netzvertraege.root
+
+    async def get_netzvertraege_for_melo(self, melo_id: str) -> list[Netzvertrag]:
+        """
+        provide a melo id, e.g. 'DE1234567890123456789012345678901' and get the corresponding netzverträge
+        """
+        if not melo_id:
+            raise ValueError("You must not provide an empty melo_id")
+        return await self.get_netzvertraege_for_query_params({"messlokation": melo_id})
+
+    async def get_netzvertraege_for_malo(self, malo_id: str) -> list[Netzvertrag]:
+        """
+        provide a melo id, e.g. '44932450420' and get the corresponding netzverträge
+        """
+        if not malo_id:
+            raise ValueError("You must not provide an empty malo_id")
+        return await self.get_netzvertraege_for_query_params({"marktlokation": malo_id})
 
     async def get_netzvertrag_by_id(self, nv_id: uuid.UUID) -> Netzvertrag | None:
         """
