@@ -22,7 +22,7 @@ bo4e==202401.2.1
     # via tmdsclient (pyproject.toml)
 brotli==1.1.0
     # via aiohttp
-certifi==2024.12.14
+certifi==2025.1.31
     # via
     #   httpcore
     #   httpx
