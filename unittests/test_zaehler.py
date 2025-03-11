@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 
 from aioresponses import CallbackResult, aioresponses
 from bo4e import Sparte
-from jsonpatch import JsonPatch
+from jsonpatch import JsonPatch  # type:ignore[import-untyped]
 
 from tmdsclient.models.zaehler import Zaehler
 from tmdsclient.models.zaehler_bo_model import Zaehlertyp
