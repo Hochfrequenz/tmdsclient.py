@@ -34,7 +34,7 @@ class Bilanzierungsmethode(StrEnum):
     IMS = "IMS"  # see https://github.com/bo4e/BO4E-python/pull/921
 
 
-class Bo4eMarktlokationWithNetznutzungsabrechnungsdaten(Bo4eMarktlokation):  # type:ignore[override]
+class Bo4eMarktlokationWithNetznutzungsabrechnungsdaten(Bo4eMarktlokation):
     """
     similar to the bo4e marktlokation but with a list of Netznutzungsabrechnungsdaten
     """
