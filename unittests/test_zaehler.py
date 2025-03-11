@@ -113,8 +113,6 @@ class TestTmdsZaehler:
 
         def change_zaehlertyp_to_wasserzaehler(_zaehler: Zaehler) -> None:
             assert _zaehler.boModel is not None
-            if not _zaehler.boModel:
-                return
             _zaehler.boModel.zaehlertyp = Zaehlertyp.WASSERZAEHLER
 
         def patch_endpoint_callback(url, **kwargs):  # pylint:disable=unused-argument
