@@ -18,7 +18,7 @@ anyio==4.8.0
     # via httpx
 attrs==25.1.0
     # via aiohttp
-bo4e==202401.2.1
+bo4e==202401.5.0
     # via tmdsclient (pyproject.toml)
 brotli==1.1.0
     # via aiohttp
