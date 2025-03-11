@@ -127,6 +127,7 @@ class TestTmdsZaehler:
         with aioresponses() as mocked_tmds:
             mocked_get_url = f"{tmds_config.server_url}api/Zaehler/{zaehler.id}/2025-01-01T00:00:00+00:00"
             mocked_tmds.get(mocked_get_url, status=200, payload=zaehler_json)
+            # pylint:disable=line-too-long
             mocked_patch_url = f"{tmds_config.server_url}api/v2/Zaehler/{zaehler.id}?aenderungsDatum=2025-01-01T00%253A00%253A00%252B00%253A00"
             mocked_tmds.patch(mocked_patch_url, callback=patch_endpoint_callback)
             actual = await client.update_zaehler(
