@@ -1,8 +1,12 @@
 import uuid
+from datetime import UTC, datetime
 
-from aioresponses import aioresponses
+from aioresponses import CallbackResult, aioresponses
+from bo4e import Sparte
+from jsonpatch import JsonPatch
 
 from tmdsclient.models.zaehler import Zaehler
+from tmdsclient.models.zaehler_bo_model import Zaehlertyp
 
 
 def _get_zaehler_model() -> Zaehler:
@@ -99,3 +103,36 @@ class TestTmdsZaehler:
             )
             was_set_successfully = await client.set_schmutzwasser_relevanz(zaehler_id, True)
             assert was_set_successfully is True
+
+    async def test_update_zaehler(self, tmds_client_with_default_auth) -> None:
+        zaehler = _get_zaehler_model()
+        zaehler_json = zaehler.model_dump(mode="json", by_alias=True)
+        zaehler.boModel.sparte = Sparte.WASSER
+        zaehler.boModel.zaehlertyp = Zaehlertyp.DREHSTROMZAEHLER
+        client, tmds_config = tmds_client_with_default_auth
+
+        def change_zaehlertyp_to_wasserzaehler(_zaehler: Zaehler) -> None:
+            assert _zaehler.boModel is not None
+            if not _zaehler.boModel:
+                return
+            _zaehler.boModel.zaehlertyp = Zaehlertyp.WASSERZAEHLER
+
+        def patch_endpoint_callback(url, **kwargs):  # pylint:disable=unused-argument
+            request_body = kwargs["json"]
+            json_patch = JsonPatch(request_body)
+            modified_zaehler_json = zaehler_json.copy()
+            result = json_patch.apply(modified_zaehler_json)
+            return CallbackResult(status=200, payload=result)
+
+        with aioresponses() as mocked_tmds:
+            mocked_get_url = f"{tmds_config.server_url}api/Zaehler/{zaehler.id}/2025-01-01T00:00:00+00:00"
+            mocked_tmds.get(mocked_get_url, status=200, payload=zaehler_json)
+            mocked_patch_url = f"{tmds_config.server_url}api/v2/Zaehler/{zaehler.id}?aenderungsDatum=2025-01-01T00%253A00%253A00%252B00%253A00"
+            mocked_tmds.patch(mocked_patch_url, callback=patch_endpoint_callback)
+            actual = await client.update_zaehler(
+                zaehler.id, [change_zaehlertyp_to_wasserzaehler], datetime(2025, 1, 1, 0, 0, 0).replace(tzinfo=UTC)
+            )
+        assert isinstance(actual, Zaehler)
+        assert actual.boModel is not None
+        assert actual.boModel.zaehlertyp is not None
+        assert actual.boModel.zaehlertyp == Zaehlertyp.WASSERZAEHLER

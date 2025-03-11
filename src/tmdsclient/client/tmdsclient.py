@@ -383,6 +383,40 @@ class TmdsClient(ABC):
             result = Marktlokation.model_validate(response_json)
         return result
 
+    async def update_zaehler(
+        self,
+        zaehler_id: uuid.UUID,
+        changes: list[Callable[[Zaehler], None]] | JsonPatch,
+        keydate: AwareDatetime | None = None,
+    ) -> Zaehler:
+        """
+        patch the given zaehler using the changes
+        """
+        session = await self._get_session()
+        zaehler = await self.get_zaehler(zaehler_id, keydate)
+        if zaehler is None:
+            raise ValueError(f"Zaehler with id '{zaehler_id}' not found")
+        patch_document: jsonpatch.JsonPatch
+        if isinstance(changes, list) and len(changes) > 0 and not isinstance(changes[0], dict):
+            # we assume that "not isinstance(changes[0], dict)" == isinstance(changes[0], Callable)
+            patch_document = build_json_patch_document(zaehler, changes)  # type:ignore[arg-type]
+        else:
+            # assume it's the patch itself
+            patch_document = jsonpatch.JsonPatch(changes)
+        request_url = self._config.server_url / "api" / "v2" / "Zaehler" / str(zaehler_id)
+        if keydate is not None:  # if it's None it defaults to now(UTC) on serverside anyway
+            request_url = request_url % {"aenderungsDatum": keydate.isoformat()}
+        request_uuid = uuid.uuid4()
+        _logger.debug("[%s] patching %s with body %s", str(request_uuid), request_url, str(patch_document))
+        async with session.patch(
+            request_url, json=patch_document.patch, headers={"Content-Type": "application/json-patch+json"}
+        ) as response:
+            response.raise_for_status()
+            _logger.debug("[%s] response status: %s", str(request_uuid), response.status)
+            response_json = await response.json()
+            result = Zaehler.model_validate(response_json)
+        return result
+
     async def get_messlokation(self, messlokation_id: str) -> Messlokation | None:
         """
         provide a Messlokation-ID, get the matching MeLo in return (or None, if 404)
@@ -402,12 +436,14 @@ class TmdsClient(ABC):
             result = Messlokation.model_validate(response_json)
         return result
 
-    async def get_zaehler(self, zaehler_id: uuid.UUID) -> Zaehler | None:
+    async def get_zaehler(self, zaehler_id: uuid.UUID, keydate: AwareDatetime | None = None) -> Zaehler | None:
         """
         provide a Zaehler-ID, get the matching Zaehler in return (or None, if 404)
         """
         session = await self._get_session()
         request_url = self._config.server_url / "api" / "Zaehler" / str(zaehler_id)
+        if keydate is not None:
+            request_url = request_url / keydate.isoformat()
         request_uuid = uuid.uuid4()
         _logger.debug("[%s] requesting %s", str(request_uuid), request_url)
         async with session.get(request_url) as response:
