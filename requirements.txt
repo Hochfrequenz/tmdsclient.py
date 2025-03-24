@@ -49,7 +49,7 @@ jsonpointer==3.0.0
     # via jsonpatch
 more-itertools==10.6.0
     # via tmdsclient (pyproject.toml)
-multidict==6.1.0
+multidict==6.2.0
     # via
     #   aiohttp
     #   yarl
