@@ -57,7 +57,7 @@ propcache==0.3.1
     # via
     #   aiohttp
     #   yarl
-pydantic==2.10.6
+pydantic==2.11.2
     # via
     #   bo4e
     #   tmdsclient (pyproject.toml)
