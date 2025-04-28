@@ -47,7 +47,7 @@ jsonpatch==1.33
     # via tmdsclient (pyproject.toml)
 jsonpointer==3.0.0
     # via jsonpatch
-more-itertools==10.6.0
+more-itertools==10.7.0
     # via tmdsclient (pyproject.toml)
 multidict==6.4.3
     # via
