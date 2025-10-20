@@ -61,7 +61,7 @@ pydantic==2.10.6
     # via
     #   bo4e
     #   tmdsclient (pyproject.toml)
-pydantic-core==2.27.2
+pydantic-core==2.41.4
     # via pydantic
 pyhumps==3.8.0
     # via bo4e
