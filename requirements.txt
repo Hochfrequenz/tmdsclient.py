@@ -20,7 +20,7 @@ attrs==25.3.0
     # via aiohttp
 bo4e==202501.0.0
     # via tmdsclient (pyproject.toml)
-brotli==1.1.0
+brotli==1.2.0
     # via aiohttp
 certifi==2025.10.5
     # via
