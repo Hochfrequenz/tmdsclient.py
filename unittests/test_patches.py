@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from typing import Callable
 
 import pytest
-from jsonpatch import JsonPatch  # type:ignore[import]
+from jsonpatch import JsonPatch  # type: ignore[import]
 
 from tmdsclient.models.netzvertrag import Bo4eVertrag, Netzvertrag, Vertragsstatus
 from tmdsclient.models.patches import build_json_patch_document

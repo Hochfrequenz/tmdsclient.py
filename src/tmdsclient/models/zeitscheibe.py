@@ -45,7 +45,7 @@ class Zeitscheibe(BaseModel):
 def create_zeitscheibe_class(
     entity_validator: Callable[[Any, str], Any],
     owner_validator: Callable[[Any, str], Any],
-    entity_type: Optional[Type] = None,  # type:ignore[type-arg]
+    entity_type: Optional[Type] = None,  # type: ignore[type-arg]
 ) -> Type[Zeitscheibe]:
     """
     Create a Zeitscheibe class using the given validators; If entity_type is set, use it as type for the entity itself.
@@ -79,7 +79,7 @@ def create_zeitscheibe_class(
         extends the Zeitscheibe class with an entity field
         """
 
-        entity: Optional[entity_type] = None  # type:ignore[valid-type]
+        entity: Optional[entity_type] = None  # type: ignore[valid-type]
         # We're not using the type hint directly but make it nullable so that it works in both cases:
         # 1. the TMDS includes the entity
         # 2. the TMDS does not include the entity

@@ -36,7 +36,7 @@ class Messlokation(BaseModel):
 
     id: str
     bo_model: Bo4eMeLoWithoutIdValidation = pydantic.Field(alias="boModel")
-    zaehler: Optional[list[_ZeitscheibeMeloZaehler]] = None  # type:ignore[valid-type]
+    zaehler: Optional[list[_ZeitscheibeMeloZaehler]] = None  # type: ignore[valid-type]
 
     # pylint:disable=no-self-argument
     @field_validator("id", mode="before")
