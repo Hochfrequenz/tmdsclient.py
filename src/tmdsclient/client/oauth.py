@@ -13,7 +13,7 @@ from aioauth_client import OAuth2Client
 from yarl import URL
 
 _logger = logging.getLogger(__name__)
-
+_last_time_the_expiration_was_logged: Optional[datetime] = None
 
 def token_is_valid(token: str) -> bool:
     """
@@ -23,8 +23,13 @@ def token_is_valid(token: str) -> bool:
     try:
         decoded_token = jwt.decode(token, algorithms=["HS256"], options={"verify_signature": False})
         expiration_timestamp = decoded_token.get("exp")
-        expiration_datetime = datetime.fromtimestamp(expiration_timestamp).replace(tzinfo=UTC)
-        _logger.debug("Token is valid until %s", expiration_datetime.isoformat())
+        if expiration_timestamp is None:
+            return False
+        expiration_datetime = datetime.fromtimestamp(float(expiration_timestamp)).replace(tzinfo=UTC)
+        should_log_expiration_dt = _last_time_the_expiration_was_logged is None or (datetime.now(UTC) - _last_time_the_expiration_was_logged) > timedelta(minutes=1)
+        if should_log_expiration_dt:
+            _logger.debug("Token is valid until %s", expiration_datetime.isoformat())
+            _last_time_the_expiration_was_logged = datetime.now(UTC)
         current_datetime = datetime.now(UTC)
         token_is_valid_one_minute_into_the_future = expiration_datetime > current_datetime + timedelta(minutes=1)
         return token_is_valid_one_minute_into_the_future
