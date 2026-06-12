@@ -6,11 +6,9 @@
 #
 aioauth-client==0.30.1
     # via tmdsclient (pyproject.toml)
-aiodns==4.0.4
-    # via aiohttp
 aiohappyeyeballs==2.6.2
     # via aiohttp
-aiohttp[speedups]==3.13.5
+aiohttp==3.13.5
     # via tmdsclient (pyproject.toml)
 aiosignal==1.4.0
     # via aiohttp
@@ -20,18 +18,12 @@ anyio==4.13.0
     # via httpx
 attrs==26.1.0
     # via aiohttp
-backports-zstd==1.5.0
-    # via aiohttp
 bo4e==202501.0.0
     # via tmdsclient (pyproject.toml)
-brotli==1.2.0
-    # via aiohttp
 certifi==2026.5.20
     # via
     #   httpcore
     #   httpx
-cffi==2.0.0
-    # via pycares
 frozenlist==1.8.0
     # via
     #   aiohttp
@@ -63,10 +55,6 @@ propcache==0.5.2
     # via
     #   aiohttp
     #   yarl
-pycares==5.0.1
-    # via aiodns
-pycparser==3.0
-    # via cffi
 pydantic==2.13.4
     # via
     #   bo4e
