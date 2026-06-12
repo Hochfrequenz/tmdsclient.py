@@ -26,6 +26,7 @@ def token_is_valid(token: str) -> bool:
         if expiration_timestamp is None:
             return False
         expiration_datetime = datetime.fromtimestamp(float(expiration_timestamp)).replace(tzinfo=UTC)
+        global _last_time_the_expiration_was_logged  # pylint:disable=global-statement
         should_log_expiration_dt = _last_time_the_expiration_was_logged is None or (datetime.now(UTC) - _last_time_the_expiration_was_logged) > timedelta(minutes=1)
         if should_log_expiration_dt:
             _logger.debug("Token is valid until %s", expiration_datetime.isoformat())

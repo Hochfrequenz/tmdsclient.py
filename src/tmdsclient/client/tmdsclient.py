@@ -365,7 +365,7 @@ class TmdsClient(ABC):
         patch_document: jsonpatch.JsonPatch
         if isinstance(changes, list) and len(changes) > 0 and not isinstance(changes[0], dict):
             # we assume that "not isinstance(changes[0], dict)" == isinstance(changes[0], Callable)
-            patch_document = build_json_patch_document(marktlokation, changes)  # type:ignore[arg-type]
+            patch_document = build_json_patch_document(marktlokation, changes)
         else:
             # assume it's the patch itself
             patch_document = jsonpatch.JsonPatch(changes)
@@ -399,7 +399,7 @@ class TmdsClient(ABC):
         patch_document: jsonpatch.JsonPatch
         if isinstance(changes, list) and len(changes) > 0 and not isinstance(changes[0], dict):
             # we assume that "not isinstance(changes[0], dict)" == isinstance(changes[0], Callable)
-            patch_document = build_json_patch_document(zaehler, changes)  # type:ignore[arg-type]
+            patch_document = build_json_patch_document(zaehler, changes)
         else:
             # assume it's the patch itself
             patch_document = jsonpatch.JsonPatch(changes)

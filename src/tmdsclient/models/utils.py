@@ -41,7 +41,7 @@ def create_id_prefix_validator(prefix: str, convert_to_uuid: bool, is_guid: bool
                 if convert_to_uuid:
                     return UUID(value)
                 _ = UUID(value)  # check if parseable as guid but do not convert
-            return value
+            return str(value)
         return value  # type:ignore[no-any-return]
 
     return remove_prefix
