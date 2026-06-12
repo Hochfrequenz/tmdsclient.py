@@ -15,6 +15,7 @@ from yarl import URL
 _logger = logging.getLogger(__name__)
 _last_time_the_expiration_was_logged: Optional[datetime] = None
 
+
 def token_is_valid(token: str) -> bool:
     """
     returns true iff the token expiration date is far enough in the future. By "enough" I mean:

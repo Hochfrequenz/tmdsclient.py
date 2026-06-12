@@ -4,7 +4,7 @@ from typing import Any
 
 from aioresponses import CallbackResult, aioresponses
 from bo4e import Sparte
-from jsonpatch import JsonPatch  # type:ignore[import-untyped]
+from jsonpatch import JsonPatch  # type: ignore[import-untyped]
 
 from tmdsclient.models.marktlokation import Marktlokation
 

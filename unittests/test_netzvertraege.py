@@ -8,7 +8,7 @@ import httpx
 import pytest
 from aiohttp import ClientResponseError
 from aioresponses import CallbackResult, aioresponses
-from jsonpatch import JsonPatch  # type:ignore[import]
+from jsonpatch import JsonPatch  # type: ignore[import]
 
 from tmdsclient.models.netzvertrag import Bo4eVertrag, Netzvertrag, Vertragsstatus, Vertragsteil
 

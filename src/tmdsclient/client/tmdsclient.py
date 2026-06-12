@@ -7,7 +7,7 @@ from abc import ABC
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, Callable, Literal, Optional, overload
 
-import jsonpatch  # type:ignore[import-untyped]
+import jsonpatch  # type: ignore[import-untyped]
 from aiohttp import BasicAuth, ClientResponseError, ClientSession, ClientTimeout
 from more_itertools import chunked
 from pydantic import AwareDatetime
@@ -62,7 +62,7 @@ class TmdsClient(ABC):
         If the server_url is an IP address, None is returned.
         """
         # this method is unit tested; check the testcases to understand its branches
-        domain_parts = self._config.server_url.host.split(".")  # type:ignore[union-attr]
+        domain_parts = self._config.server_url.host.split(".")  # type: ignore[union-attr]
         if all(x.isnumeric() for x in domain_parts):
             # seems like this is an IP address
             return None
@@ -219,7 +219,7 @@ class TmdsClient(ABC):
                 try:
                     _result_chunk = await asyncio.gather(*get_tasks)
                     for nv in _result_chunk:
-                        yield nv  # type:ignore[misc]
+                        yield nv  # type: ignore[misc]
                         # this must not be None, because we know the ID exists on server side
                     successfully_downloaded += len(_result_chunk)
                     _log_chunk_success(
@@ -243,7 +243,7 @@ class TmdsClient(ABC):
                         # With a moderate sized chunk_size it should be fine as there are not that many 500 errors.
                         success_in_this_chunk = 0
                         try:
-                            yield await self.get_netzvertrag_by_id(_nv_id)  # type:ignore[misc]
+                            yield await self.get_netzvertrag_by_id(_nv_id)  # type: ignore[misc]
                             # it should not be none here, because we know the ID exists, that would be a server error
                             successfully_downloaded += 1
                             success_in_this_chunk += 1
@@ -295,7 +295,7 @@ class TmdsClient(ABC):
             _log_chunk_success(
                 chunk_size=chunk_size, chunk_idx=chunk_index, total_size=len(all_ids), chunk_length=len(result_chunk)
             )
-            result.extend(result_chunk)  # type:ignore[arg-type]
+            result.extend(result_chunk)  # type: ignore[arg-type]
         _logger.info("Successfully downloaded %i Netzvertraege", len(result))
         return result
 
