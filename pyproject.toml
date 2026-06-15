@@ -51,7 +51,7 @@ spellcheck = [
 tests = [
     "aioresponses==0.7.8",
     "pytest==8.4.1",
-    "pytest-asyncio==1.1.0"
+    "pytest-asyncio==1.4.0"
 ]
 type_check = [
     "mypy[pydantic]>=1.17",
