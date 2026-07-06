@@ -38,8 +38,8 @@ formatting = [
     "isort==8.0.1"
 ]
 linting = [
-    "pylint==3.3.7",
-    "pylint-pydantic==0.3.5"
+    "pylint==4.0.6",
+    "pylint-pydantic==0.4.1"
 ]
 packaging = [
     "build==1.5.0",
