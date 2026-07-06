@@ -65,7 +65,7 @@ pyhumps==3.8.0
     # via bo4e
 pyjwt==2.13.0
     # via tmdsclient (pyproject.toml)
-typing-extensions==4.15.0
+typing-extensions==4.16.0
     # via
     #   aiosignal
     #   anyio
