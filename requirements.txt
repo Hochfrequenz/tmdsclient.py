@@ -20,7 +20,7 @@ attrs==26.1.0
     # via aiohttp
 bo4e==202501.0.0
     # via tmdsclient (pyproject.toml)
-certifi==2026.5.20
+certifi==2026.6.17
     # via
     #   httpcore
     #   httpx
