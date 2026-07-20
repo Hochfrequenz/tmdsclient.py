@@ -6,7 +6,7 @@
 #
 aioauth-client==0.30.1
     # via tmdsclient (pyproject.toml)
-aiohappyeyeballs==2.6.2
+aiohappyeyeballs==2.7.1
     # via aiohttp
 aiohttp==3.13.5
     # via tmdsclient (pyproject.toml)
