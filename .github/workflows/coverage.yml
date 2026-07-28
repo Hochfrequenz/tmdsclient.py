@@ -17,5 +17,5 @@ jobs:
         run: |
           cd unittests
           uv run --group coverage coverage run -m pytest
-          uv run --group coverage coverage html --omit .venv/*,unittests/*
-          uv run --group coverage coverage report --fail-under 90 --omit .venv/*,unittests/*
+          uv run --group coverage coverage html --omit */.venv/*,*/unittests/*
+          uv run --group coverage coverage report --fail-under 90 --omit */.venv/*,*/unittests/*
