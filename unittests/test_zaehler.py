@@ -65,6 +65,25 @@ def _get_zaehler_model() -> Zaehler:
     return Zaehler.model_validate(zaehler_dict)
 
 
+def test_is_wasser_zaehler_true_for_wasser_sparte():
+    zaehler = _get_zaehler_model()
+    zaehler.boModel.sparte = Sparte.WASSER
+    assert zaehler.is_wasser_zaehler() is True
+
+
+def test_is_wasser_zaehler_true_for_wasserzaehler_typ():
+    zaehler = _get_zaehler_model()
+    zaehler.boModel.zaehlertyp = Zaehlertyp.WASSERZAEHLER
+    assert zaehler.is_wasser_zaehler() is True
+
+
+def test_is_wasser_zaehler_false_otherwise():
+    zaehler = _get_zaehler_model()
+    assert zaehler.boModel.sparte != Sparte.WASSER
+    assert zaehler.boModel.zaehlertyp != Zaehlertyp.WASSERZAEHLER
+    assert zaehler.is_wasser_zaehler() is False
+
+
 class TestTmdsZaehler:
     async def test_get_zaehler_zaehler_exists_returns_zaehler(self, tmds_client_with_default_auth):
         client, settings = tmds_client_with_default_auth
