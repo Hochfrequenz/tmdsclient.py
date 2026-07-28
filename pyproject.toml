@@ -29,8 +29,18 @@ dependencies = [
 ] # add all the dependencies here
 dynamic = ["readme", "version"]
 
-[project.optional-dependencies]
+[project.urls]
+Changelog = "https://github.com/Hochfrequenz/tmdsclient.py/releases"
+Homepage = "https://github.com/Hochfrequenz/tmdsclient.py"
+
+[dependency-groups]
+tests = [
+    "aioresponses==0.7.8",
+    "pytest==9.1.1",
+    "pytest-asyncio==1.4.0"
+]
 coverage = [
+    {include-group = "tests"},
     "coverage==7.14.3"
 ]
 formatting = [
@@ -38,29 +48,30 @@ formatting = [
     "isort==8.0.1"
 ]
 linting = [
+    {include-group = "tests"},
     "pylint==4.0.6",
     "pylint-pydantic==0.4.1"
 ]
-packaging = [
-    "build==1.5.0",
-    "twine==6.1.0"
-]
-spellcheck = [
+spell_check = [
     "codespell==2.4.2"
 ]
-tests = [
-    "aioresponses==0.7.8",
-    "pytest==9.1.1",
-    "pytest-asyncio==1.4.0"
-]
 type_check = [
+    {include-group = "tests"},
     "mypy[pydantic]>=1.17",
     "types-pytz==2026.2.0.20260518"
 ]
+dev = [
+    {include-group = "tests"},
+    {include-group = "coverage"},
+    {include-group = "formatting"},
+    {include-group = "linting"},
+    {include-group = "spell_check"},
+    {include-group = "type_check"},
+    "pre-commit"
+]
 
-[project.urls]
-Changelog = "https://github.com/Hochfrequenz/tmdsclient.py/releases"
-Homepage = "https://github.com/Hochfrequenz/tmdsclient.py"
+[tool.uv]
+default-groups = []
 
 [tool.black]
 line-length = 120
