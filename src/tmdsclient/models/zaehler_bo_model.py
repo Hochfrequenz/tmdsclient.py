@@ -2,6 +2,7 @@
 The BO model included in a TMDS zaehler
 """
 
+from collections.abc import Callable
 from datetime import datetime
 from typing import ClassVar
 
@@ -47,7 +48,7 @@ class ZaehlerBoModel(BaseModel):
         Configurations for ZaehlerBoModel
         """
 
-        json_encoders: ClassVar[dict] = {
+        json_encoders: ClassVar[dict[type[datetime], Callable[[datetime], str]]] = {
             datetime: lambda d: d.isoformat(),  # serialize datetime to timestamp
         }
 

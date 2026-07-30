@@ -2,6 +2,7 @@
 Model of the Zaehler object of the TMDS
 """
 
+from collections.abc import Callable
 from datetime import datetime
 from typing import Any, ClassVar
 from uuid import UUID
@@ -24,7 +25,7 @@ class Zaehler(BaseModel):
         Configurations for Zaehler
         """
 
-        json_encoders: ClassVar[dict] = {
+        json_encoders: ClassVar[dict[type[datetime], Callable[[datetime], str]]] = {
             datetime: lambda d: d.isoformat(),  # serialize datetime to timestamp
         }
 
