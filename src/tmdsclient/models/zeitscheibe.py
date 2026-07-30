@@ -46,7 +46,7 @@ class Zeitscheibe(BaseModel):
 def create_zeitscheibe_class(
     entity_validator: Callable[[Any, str], Any],
     owner_validator: Callable[[Any, str], Any],
-    entity_type: type | None = None,  # type: ignore[type-arg]
+    entity_type: type | None = None,
 ) -> type[Zeitscheibe]:
     """
     Create a Zeitscheibe class using the given validators; If entity_type is set, use it as type for the entity itself.
