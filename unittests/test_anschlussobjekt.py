@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from aioresponses import aioresponses
 
@@ -10,8 +10,7 @@ class TestTmdsAnschlussobjekt:
         external_ao_id = "10024649"
         event_id = str(uuid.uuid4())
         with aioresponses() as mocked_tmds:
-            # pylint:disable=line-too-long
-            post_url = f"{tmds_settings.server_url}api/Anschlussobjekt/{external_ao_id}/setPlattform?plattformfaehig=true&aenderungsdatum=2000-01-01T00%253A00%253A00%252B00%253A00"
+            post_url = f"{tmds_settings.server_url}api/Anschlussobjekt/{external_ao_id}/setPlattform?plattformfaehig=true&aenderungsdatum=2000-01-01T00%253A00%253A00%252B00%253A00"  # noqa: E501
             mocked_tmds.post(
                 post_url,
                 status=200,
@@ -20,6 +19,6 @@ class TestTmdsAnschlussobjekt:
             has_been_handled_url = f"{tmds_settings.server_url}api/Event/hasBeenHandled/{event_id}"
             mocked_tmds.get(has_been_handled_url, status=200, payload="true")
             actual = await client.set_plattformfaehigkeit(
-                external_ao_id, is_plattformfaehig=True, change_date=datetime(2000, 1, 1, tzinfo=timezone.utc)
+                external_ao_id, is_plattformfaehig=True, change_date=datetime(2000, 1, 1, tzinfo=UTC)
             )
         assert actual is True

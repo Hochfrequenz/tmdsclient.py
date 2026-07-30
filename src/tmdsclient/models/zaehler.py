@@ -3,7 +3,7 @@ Model of the Zaehler object of the TMDS
 """
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, ClassVar
 from uuid import UUID
 
 from bo4e.enum.sparte import Sparte
@@ -24,17 +24,17 @@ class Zaehler(BaseModel):
         Configurations for Zaehler
         """
 
-        json_encoders = {
+        json_encoders: ClassVar[dict] = {
             datetime: lambda d: d.isoformat(),  # serialize datetime to timestamp
         }
 
     id: UUID
     externeId: str
     boModel: ZaehlerBoModel
-    einbaudatum: Optional[datetime] = None
-    ausbaudatum: Optional[datetime] = None
+    einbaudatum: datetime | None = None
+    ausbaudatum: datetime | None = None
     sperrzustand: str
-    is_schmutzwasser_relevant: Optional[bool] = Field(alias="istSchmutzwasserRelevant", default=None)
+    is_schmutzwasser_relevant: bool | None = Field(alias="istSchmutzwasserRelevant", default=None)
 
     # using the forward reference here to avoid a circular imports
     # messlokation: ForwardRef("Messlokation") | None = None  # type:ignore[valid-type]

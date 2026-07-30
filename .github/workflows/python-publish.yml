@@ -26,8 +26,7 @@ jobs:
           uv run --group tests pytest
       - name: Run linting
         run: |
-          uv run --group linting pylint tmdsclient
-          uv run --group linting pylint unittests --rcfile=unittests/.pylintrc
+          uv run --group linting ruff check src/tmdsclient unittests
       - name: Run type_check
         run: |
           uv run --group type_check mypy --show-error-codes src/tmdsclient --strict

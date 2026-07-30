@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 import uuid
@@ -42,7 +41,7 @@ class TestGetNetzvertraege:
         index_of_error = 123 if with_http_500 else None
         all_ids = [{"interneId": str(uuid.uuid4()), "externeId": "fooo"} for _ in range(size)]
         netzvertrag_json_file = Path(__file__).parent / "example_data" / "single_netzvertrag.json"
-        with open(netzvertrag_json_file, "r", encoding="utf-8") as infile:
+        with open(netzvertrag_json_file, encoding="utf-8") as infile:
             netzvertrag_json = json.load(infile)
         client, tmds_config = tmds_client_with_default_auth
         result_list: list[Netzvertrag]
@@ -67,7 +66,7 @@ class TestGetNetzvertraege:
                         result_list.append(nv)
                     except StopAsyncIteration:
                         break
-                    except (ClientResponseError, asyncio.TimeoutError):
+                    except (TimeoutError, ClientResponseError):
                         # some error handling goes here in the calling code
                         pass
         if not as_generator:  # outside aioresponses block
@@ -80,7 +79,7 @@ class TestGetNetzvertraege:
 
     async def test_get_netzvertrag_by_id(self, tmds_client_with_default_auth):
         netzvertrag_json_file = Path(__file__).parent / "example_data" / "single_netzvertrag.json"
-        with open(netzvertrag_json_file, "r", encoding="utf-8") as infile:
+        with open(netzvertrag_json_file, encoding="utf-8") as infile:
             netzvertrag_json = json.load(infile)
         nv_id = uuid.UUID("3e15bf73-ea1b-4f50-8f18-3288074a4fec")
         client, tmds_config = tmds_client_with_default_auth
@@ -97,7 +96,7 @@ class TestGetNetzvertraege:
 
     async def test_get_netzvertraege_by_melo(self, tmds_client_with_default_auth):
         netzvertraege_json_file = Path(__file__).parent / "example_data" / "list_of_netzvertraege.json"
-        with open(netzvertraege_json_file, "r", encoding="utf-8") as infile:
+        with open(netzvertraege_json_file, encoding="utf-8") as infile:
             netzvertraege_json = json.load(infile)
         melo_id = "DE0011122233344455566677788899900"
         client, tmds_config = tmds_client_with_default_auth
@@ -112,13 +111,13 @@ class TestGetNetzvertraege:
         assert any(actual[0].model_extra), "Unmapped properties should be stored in model_extra (Netzvertrag)"
         assert any(actual[0].bo_model.model_extra), "Unmapped properties should be stored in model_extra (Bo4eVertrag)"
         assert actual[0].marktlokation.id == "97149628801"
-        assert any(
-            actual[0].marktlokation.model_extra
-        ), "Unmapped properties should be stored in model_extra (Marktlokation)"
+        assert any(actual[0].marktlokation.model_extra), (
+            "Unmapped properties should be stored in model_extra (Marktlokation)"
+        )
 
     async def test_update_netzvertrag(self, tmds_client_with_default_auth):
         netzvertrag_json_file = Path(__file__).parent / "example_data" / "single_netzvertrag.json"
-        with open(netzvertrag_json_file, "r", encoding="utf-8") as infile:
+        with open(netzvertrag_json_file, encoding="utf-8") as infile:
             netzvertrag_json = json.load(infile)
 
         nv_id = uuid.UUID("3e15bf73-ea1b-4f50-8f18-3288074a4fec")
@@ -156,7 +155,7 @@ class TestGetNetzvertraege:
 
     async def test_get_netzvertrag_by_id_via_oauth(self, tmds_client_with_oauth):
         netzvertrag_json_file = Path(__file__).parent / "example_data" / "single_netzvertrag.json"
-        with open(netzvertrag_json_file, "r", encoding="utf-8") as infile:
+        with open(netzvertrag_json_file, encoding="utf-8") as infile:
             netzvertrag_json = json.load(infile)
         nv_id = uuid.UUID("3e15bf73-ea1b-4f50-8f18-3288074a4fec")
         client, tmds_config = tmds_client_with_oauth

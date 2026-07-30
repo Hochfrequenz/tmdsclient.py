@@ -9,10 +9,10 @@ from .client.config import BasicAuthTmdsConfig, OAuthTmdsConfig, TmdsConfig
 from .client.tmdsclient import BasicAuthTmdsClient, OAuthTmdsClient, TmdsClient
 
 __all__ = [
-    "TmdsConfig",
+    "BasicAuthTmdsClient",
     "BasicAuthTmdsConfig",
+    "OAuthTmdsClient",
     "OAuthTmdsConfig",
     "TmdsClient",
-    "BasicAuthTmdsClient",
-    "OAuthTmdsConfig",
+    "TmdsConfig",
 ]

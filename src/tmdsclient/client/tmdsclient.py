@@ -4,8 +4,9 @@ import asyncio
 import logging
 import uuid
 from abc import ABC
+from collections.abc import AsyncGenerator, Callable
 from datetime import datetime, timedelta
-from typing import AsyncGenerator, Callable, Literal, Optional, overload
+from typing import Literal, overload
 
 import jsonpatch  # type: ignore[import-untyped]
 from aiohttp import BasicAuth, ClientResponseError, ClientSession, ClientTimeout
@@ -45,7 +46,7 @@ due to high load
 """
 
 
-class TmdsClient(ABC):
+class TmdsClient(ABC):  # noqa: B024 -- not decorated with @abstractmethod because tests instantiate this base class directly
     """
     an async wrapper around the TMDS API
     """
@@ -53,7 +54,7 @@ class TmdsClient(ABC):
     def __init__(self, config: TmdsConfig):
         self._config = config
         self._session_lock = asyncio.Lock()
-        self._session: Optional[ClientSession] = None
+        self._session: ClientSession | None = None
         _logger.info("Instantiated TmdsClient with server_url %s", str(self._config.server_url))
 
     def get_top_level_domain(self) -> URL | None:
@@ -228,7 +229,7 @@ class TmdsClient(ABC):
                         chunk_idx=chunk_index,
                         chunk_length=len(_result_chunk),
                     )
-                except (asyncio.TimeoutError, ClientResponseError) as chunk_error:
+                except (TimeoutError, ClientResponseError) as chunk_error:
                     if (
                         isinstance(chunk_error, ClientResponseError)
                         and chunk_error.status not in _retry_worthy_http_status_codes
@@ -247,7 +248,7 @@ class TmdsClient(ABC):
                             # it should not be none here, because we know the ID exists, that would be a server error
                             successfully_downloaded += 1
                             success_in_this_chunk += 1
-                        except (asyncio.TimeoutError, ClientResponseError) as single_error:
+                        except (TimeoutError, ClientResponseError) as single_error:
                             if (
                                 isinstance(single_error, ClientResponseError)
                                 and single_error.status not in _retry_worthy_http_status_codes
@@ -569,4 +570,4 @@ class OAuthTmdsClient(TmdsClient, _OAuthHttpClient):
             return self._session
 
 
-__all__ = ["TmdsClient", "OAuthTmdsClient", "BasicAuthTmdsClient"]
+__all__ = ["BasicAuthTmdsClient", "OAuthTmdsClient", "TmdsClient"]

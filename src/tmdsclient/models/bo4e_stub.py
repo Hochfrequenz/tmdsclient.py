@@ -6,7 +6,6 @@ https://github.com/bo4e/BO4E-python/issues/724 fixed.
 
 from decimal import Decimal
 from enum import StrEnum
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -49,6 +48,6 @@ class Menge(BaseModel):
     """
 
     #: Gibt den absoluten Wert der Menge an
-    wert: Optional[Decimal] = None
+    wert: Decimal | None = None
     #: Gibt die Einheit zum jeweiligen Wert an
-    einheit: Optional[Mengeneinheit] = None
+    einheit: Mengeneinheit | None = None

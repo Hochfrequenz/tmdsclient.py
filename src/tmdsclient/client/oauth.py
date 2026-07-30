@@ -6,14 +6,13 @@ import asyncio
 import logging
 from abc import ABC
 from datetime import UTC, datetime, timedelta
-from typing import Optional
 
 import jwt
 from aioauth_client import OAuth2Client
 from yarl import URL
 
 _logger = logging.getLogger(__name__)
-_last_time_the_expiration_was_logged: Optional[datetime] = None  # pylint:disable=invalid-name
+_last_time_the_expiration_was_logged: datetime | None = None  # pylint:disable=invalid-name
 
 
 def token_is_valid(token: str) -> bool:
@@ -27,7 +26,7 @@ def token_is_valid(token: str) -> bool:
         if expiration_timestamp is None:
             return False
         expiration_datetime = datetime.fromtimestamp(float(expiration_timestamp)).replace(tzinfo=UTC)
-        global _last_time_the_expiration_was_logged  # pylint:disable=global-statement
+        global _last_time_the_expiration_was_logged  # noqa: PLW0603
         should_log_expiration_dt = _last_time_the_expiration_was_logged is None or (
             datetime.now(UTC) - _last_time_the_expiration_was_logged
         ) > timedelta(minutes=1)
@@ -80,7 +79,7 @@ class _OAuthHttpClient(_ValidateTokenMixin, ABC):  # pylint:disable=too-few-publ
             access_token_url=str(oauth_token_url),
             logger=_logger,
         )
-        self._token: Optional[str] = None  # the jwt token if we did an authenticated request before
+        self._token: str | None = None  # the jwt token if we did an authenticated request before
         self._token_write_lock = asyncio.Lock()
 
     async def _get_new_token(self) -> str:

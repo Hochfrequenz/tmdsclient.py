@@ -3,7 +3,8 @@ TMDS in v2 supports RFC6902 JSON Patch. This module contains the patching logic.
 """
 
 import json
-from typing import Callable, TypeVar
+from collections.abc import Callable
+from typing import TypeVar
 
 import jsonpatch  # type: ignore[import-untyped]# https://github.com/stefankoegl/python-json-patch/issues/158
 from pydantic import BaseModel
