@@ -3,7 +3,6 @@ Module containing the TMDS Anschlussobjekt model
 """
 
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -34,6 +33,6 @@ class Anschlussobjekt(BaseModel):
     id: UUID = Field(alias="id")
     externe_id: str = Field(alias="externeId")
     is_migrated_from_isu: bool = Field(alias="isMigratedFromIsu", default=False)
-    adresse: Optional[Adresse] = Field(alias="adresse", default=None)
+    adresse: Adresse | None = Field(alias="adresse", default=None)
     # einheiten: Optional[list[_AnschlussobjektEinheitZeitscheibe]] = None  # type:ignore[valid-type]
-    plattformfaehig: Optional[list[Plattformfaehig]] = None
+    plattformfaehig: list[Plattformfaehig] | None = None

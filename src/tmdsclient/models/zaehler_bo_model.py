@@ -2,8 +2,9 @@
 The BO model included in a TMDS zaehler
 """
 
+from collections.abc import Callable
 from datetime import datetime
-from typing import Optional
+from typing import ClassVar
 
 from bo4e.enum.sparte import Sparte
 from bo4e.enum.strenum import StrEnum
@@ -47,7 +48,7 @@ class ZaehlerBoModel(BaseModel):
         Configurations for ZaehlerBoModel
         """
 
-        json_encoders = {
+        json_encoders: ClassVar[dict[type[datetime], Callable[[datetime], str]]] = {
             datetime: lambda d: d.isoformat(),  # serialize datetime to timestamp
         }
 
@@ -55,15 +56,15 @@ class ZaehlerBoModel(BaseModel):
     versionStruktur: str
     zaehlernummer: str
     sparte: Sparte
-    zaehlerauspraegung: Optional[str] = None
-    zaehlertyp: Optional[Zaehlertyp] = None
-    tarifart: Optional[str] = None
-    zaehlerkonstante: Optional[int] = None
-    eichungBis: Optional[datetime] = None
-    letzteEichung: Optional[datetime] = None
-    zaehlwerke: Optional[list[Zaehlwerk]] = None
-    zaehlerhersteller: Optional[Zaehlerhersteller] = None
-    gateway: Optional[str] = None
-    fernschaltung: Optional[str] = None
-    messwerterfassung: Optional[str] = None
-    zaehlergroesse: Optional[str] = None
+    zaehlerauspraegung: str | None = None
+    zaehlertyp: Zaehlertyp | None = None
+    tarifart: str | None = None
+    zaehlerkonstante: int | None = None
+    eichungBis: datetime | None = None
+    letzteEichung: datetime | None = None
+    zaehlwerke: list[Zaehlwerk] | None = None
+    zaehlerhersteller: Zaehlerhersteller | None = None
+    gateway: str | None = None
+    fernschaltung: str | None = None
+    messwerterfassung: str | None = None
+    zaehlergroesse: str | None = None

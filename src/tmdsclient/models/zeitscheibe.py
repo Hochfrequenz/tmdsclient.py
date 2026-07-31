@@ -3,8 +3,9 @@ timeslice / Zeitscheibe related code
 """
 
 import re
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Optional, Type
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -27,7 +28,7 @@ class Zeitscheibe(BaseModel):
     entity_id: str = Field(alias="entityId")  #: ID of the entity which is assigned for the given time
     owner_id: str = Field(alias="ownerId")  #: the entity _to_ which the other entity is assigned
     start: datetime  #: same as von
-    end: Optional[datetime] = None  #: same as bis but null instead of 9999-12-31
+    end: datetime | None = None  #: same as bis but null instead of 9999-12-31
 
     # pylint:disable=no-self-argument
     @field_validator("bis", mode="before")
@@ -45,8 +46,8 @@ class Zeitscheibe(BaseModel):
 def create_zeitscheibe_class(
     entity_validator: Callable[[Any, str], Any],
     owner_validator: Callable[[Any, str], Any],
-    entity_type: Optional[Type] = None,  # type: ignore[type-arg]
-) -> Type[Zeitscheibe]:
+    entity_type: type | None = None,
+) -> type[Zeitscheibe]:
     """
     Create a Zeitscheibe class using the given validators; If entity_type is set, use it as type for the entity itself.
     """
@@ -79,7 +80,7 @@ def create_zeitscheibe_class(
         extends the Zeitscheibe class with an entity field
         """
 
-        entity: Optional[entity_type] = None  # type: ignore[valid-type]
+        entity: entity_type | None = None  # type: ignore[valid-type]
         # We're not using the type hint directly but make it nullable so that it works in both cases:
         # 1. the TMDS includes the entity
         # 2. the TMDS does not include the entity

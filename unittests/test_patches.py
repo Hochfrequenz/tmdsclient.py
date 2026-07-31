@@ -3,8 +3,8 @@ tests the bare JSON patch logic (no requests)
 """
 
 import uuid
-from datetime import datetime, timezone
-from typing import Callable
+from collections.abc import Callable
+from datetime import UTC, datetime
 
 import pytest
 from jsonpatch import JsonPatch  # type: ignore[import]
@@ -29,18 +29,18 @@ def _set_netzvertrag_status(nv: Netzvertrag, status: Vertragsstatus) -> None:
         pytest.param(
             Netzvertrag(
                 id=uuid.uuid4(),
-                boModel=Bo4eVertrag.construct(vertragsbeginn=datetime(2023, 1, 1, 0, 0, 0, tzinfo=timezone.utc)),
+                boModel=Bo4eVertrag.construct(vertragsbeginn=datetime(2023, 1, 1, 0, 0, 0, tzinfo=UTC)),
             ),
-            [lambda x: _set_netzvertrag_vertragsbeginn(x, datetime(2023, 1, 1, 0, 0, 0, tzinfo=timezone.utc))],
+            [lambda x: _set_netzvertrag_vertragsbeginn(x, datetime(2023, 1, 1, 0, 0, 0, tzinfo=UTC))],
             JsonPatch([]),
             id="nothing to do",
         ),
         pytest.param(
             Netzvertrag(
                 id=uuid.uuid4(),
-                boModel=Bo4eVertrag.construct(vertragsbeginn=datetime(2023, 1, 1, 0, 0, 0, tzinfo=timezone.utc)),
+                boModel=Bo4eVertrag.construct(vertragsbeginn=datetime(2023, 1, 1, 0, 0, 0, tzinfo=UTC)),
             ),
-            [lambda x: _set_netzvertrag_vertragsbeginn(x, datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc))],
+            [lambda x: _set_netzvertrag_vertragsbeginn(x, datetime(2024, 1, 1, 0, 0, 0, tzinfo=UTC))],
             JsonPatch([{"op": "replace", "path": "/boModel/vertragsbeginn", "value": "2024-01-01T00:00:00Z"}]),
             id="change one property",
         ),
@@ -48,12 +48,12 @@ def _set_netzvertrag_status(nv: Netzvertrag, status: Vertragsstatus) -> None:
             Netzvertrag(
                 id=uuid.uuid4(),
                 boModel=Bo4eVertrag.construct(
-                    vertragsbeginn=datetime(2023, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+                    vertragsbeginn=datetime(2023, 1, 1, 0, 0, 0, tzinfo=UTC),
                     vertragstatus=Vertragsstatus.AKTIV,
                 ),
             ),
             [
-                lambda x: _set_netzvertrag_vertragsbeginn(x, datetime(2023, 7, 1, 0, 0, 0, tzinfo=timezone.utc)),
+                lambda x: _set_netzvertrag_vertragsbeginn(x, datetime(2023, 7, 1, 0, 0, 0, tzinfo=UTC)),
                 lambda x: _set_netzvertrag_status(x, Vertragsstatus.STORNIERT),
             ],
             JsonPatch(

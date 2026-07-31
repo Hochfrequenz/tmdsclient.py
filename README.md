@@ -5,7 +5,7 @@
 ![Unittests status badge](https://github.com/Hochfrequenz/tmdsclient.py/workflows/Unittests/badge.svg)
 ![Coverage status badge](https://github.com/Hochfrequenz/tmdsclient.py/workflows/Coverage/badge.svg)
 ![Linting status badge](https://github.com/Hochfrequenz/tmdsclient.py/workflows/Linting/badge.svg)
-![Black status badge](https://github.com/Hochfrequenz/tmdsclient.py/workflows/Formatting/badge.svg)
+![Formatting status badge](https://github.com/Hochfrequenz/tmdsclient.py/workflows/Formatting/badge.svg)
 
 This repository contains the package `tmdsclient`.
 It is an async, fully typed Python client for the Technical Master Data Service (TMDS).
