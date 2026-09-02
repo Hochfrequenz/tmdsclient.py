@@ -44,7 +44,7 @@ coverage = [
     "coverage==7.15.4"
 ]
 linting = [
-    "ruff==0.16.4"
+    "ruff==0.16.5"
 ]
 spell_check = [
     "codespell==2.4.3"
